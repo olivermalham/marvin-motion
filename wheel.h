@@ -27,6 +27,7 @@ class WheelClass {
     float velocity = 0;
     int pwm = 0;
 
+    WheelClass(void);
     void move(float distance, float scale);
     void stop(void);
     void reset(void);

@@ -4,6 +4,11 @@
 #include "hardware/gpio.h"
 #include "wheel.h"
 
+WheelClass::WheelClass(void){
+  distance = 0;
+  distance_target = 0;
+}
+
 void WheelClass::move(float distance, float scale){
   distance_target = distance;
   D_max = D_max * scale;
