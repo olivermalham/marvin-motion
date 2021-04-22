@@ -4,6 +4,7 @@
 #include "hardware/dma.h"
 #include "hardware/clocks.h"
 #include "wheel.h"
+#include "command_packet.h"
 
 #include "marvin_pins.h"
 
@@ -27,28 +28,6 @@ void encoder_handler(uint gpio, uint32_t events){
     // Exit the loop if the wheel claims the tick as it's own
     //if(wheel[i].encoder_tick(gpio)) break;
   }
-}
-
-void send_status(void){
-  printf("{\n"
-          "  \"frame\": %u,\n"
-          "  \"wheel\": [\n", frame_count);
-
-  for(int i = 0; i < WHEEL_COUNT; i++){
-    printf("    {\n"
-          "      \"distance\":%f,\n"
-          "      \"distance_target\":%f,\n"
-          "      \"velocity\":%f,\n"
-          "      \"pwm\":%i,\n"
-          "    }\n", 
-          wheel[i].distance, 
-          wheel[i].distance_target, 
-          wheel[i].velocity, 
-          wheel[i].pwm);
-  }
-
-  printf("    ]\n"
-          "}\n\n");
 }
 
 void setup() {
@@ -124,7 +103,7 @@ void loop() {
   
   if(frame_count > 100){
     frame_count = 0;
-    send_status();
+    send_status(wheel, WHEEL_COUNT);
   }
 
   ++frame_count;
