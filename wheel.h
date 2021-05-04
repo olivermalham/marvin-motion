@@ -1,3 +1,6 @@
+#ifndef WHEEL_H
+
+#define WHEEL_H
 
 // NOTE: All distances are in encoder counts, time is in servo ticks (normally 50Hz / 20ms per tick)
 class WheelClass {
@@ -41,3 +44,4 @@ class WheelClass {
     void triangle(void);
     void update_motor(void);    
 };
+#endif

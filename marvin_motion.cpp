@@ -103,7 +103,7 @@ void loop() {
   
   if(frame_count > 100){
     frame_count = 0;
-    send_status(wheel, WHEEL_COUNT);
+    send_status(frame_count, wheel, WHEEL_COUNT);
   }
 
   ++frame_count;
