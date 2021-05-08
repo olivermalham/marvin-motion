@@ -84,7 +84,9 @@ void loop() {
   // 20ms / 50Hz servo frame, so wait whatever time we have left since we started this loop
   // Use this while loop for handling everything that needs to process more quickly than the servo loop
   while((to_ms_since_boot(get_absolute_time()) - frame_start) < SERVO_FRAME){
-
+    if(packet_read()){
+      printf("Command received\n");
+    }
   };
 
   // Simulate movement. Should be driven by encoder output
@@ -103,10 +105,26 @@ void loop() {
   
   if(frame_count > 100){
     frame_count = 0;
-    send_status(frame_count, wheel, WHEEL_COUNT);
+ //   send_status(frame_count, wheel, WHEEL_COUNT);
   }
 
   ++frame_count;
+}
+
+void send_status(unsigned long frame_count, WheelClass* wheels, int count){
+  // Format: F<frame_count>;M1,T<>,D<>,V<>,P<>;
+  
+  printf("F%u;", frame_count);
+
+  for(int i = 0; i < count; i++){
+    printf("M%i,", i); 
+    printf("T%i,", wheels[i].distance_target); 
+    printf("D%i,", wheels[i].distance); 
+    printf("V%i,", wheels[i].velocity);
+    printf("P%i;", wheels[i].pwm);
+  }
+
+  printf("\n");
 }
 
 int main(void){

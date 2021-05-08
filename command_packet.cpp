@@ -9,13 +9,23 @@
 char packetBuffer[PACKET_BUFFER];
 unsigned int packetBufferEnd = 0;
 
+#define COMMAND_BUFFER_LENGTH 128
+unsigned int CommandBufferHead = 0;
+unsigned int CommandBufferTail = 0;
+CommandPacket CommandBuffer[COMMAND_BUFFER_LENGTH];
 
-// Read a new packet from stdin, one char at a time. Return the length 
-// of the received packet once we hit a newline. Doesn't do any kind of 
-// format checking atm.
-// Format: F<frame_count>;M1,T<>,D<>,V<>,P<>;\n
+
 unsigned int packet_read(void){
-  
+  /* Read a new packet from stdin, one char at a time. Return the length 
+  of the received packet once we hit a newline. Doesn't do any kind of 
+  format checking atm.
+  Format: <Command>:M<motor no>,D<distance>,V<speed>; 
+  Examples:
+      MOVE:M1,D1234.5,V128;
+      STOP;
+      STATUS;
+      HARDSTOP;
+  */  
   char c;
   c = getchar_timeout_us(0);
 
@@ -27,15 +37,17 @@ unsigned int packet_read(void){
     if(packetBufferEnd == PACKET_BUFFER) packetBufferEnd = 0;
 
     // End of packet
-    if(c == '\n'){
+    if(c == ';'){
       packetBuffer[packetBufferEnd] = 0; // null terminate
+      printf(";\n");
       return packetBufferEnd;
     }
 
     // Only accept valid characters, anything else is ignored
-    if(isalnum(c) || c == ';' || c == ','){
+    if(isalnum(c) || c == ',' || c == '.'){
       packetBuffer[packetBufferEnd] = c;
       packetBufferEnd++;
+      printf("%c", c);
       return 0;
     }
 
@@ -43,19 +55,47 @@ unsigned int packet_read(void){
   return 0;
 }
 
-void send_status(unsigned long frame_count, WheelClass* wheels, int count){
-  // Format: F<frame_count>;M1,T<>,D<>,V<>,P<>;
-  
-  printf("F%u;", frame_count);
 
-  for(int i = 0; i < count; i++){
-    printf("M%i,", i); 
-    printf("T%i,", wheels[i].distance_target); 
-    printf("D%i,", wheels[i].distance); 
-    printf("V%i,", wheels[i].velocity);
-    printf("P%i;", wheels[i].pwm);
-  }
+void packet_parse(unsigned char* packet_string){
+  /* Parse a string into a CommandPacket struct and add it to the command
+  circular buffer. If a HARDSTOP command has been received, it over-rides all other commands
+  and flushes the circular buffer.
+  */
+  CommandBufferTail++;
+  if(CommandBufferTail > COMMAND_BUFFER_LENGTH) CommandBufferTail = 0;
 
-  printf("n");
+
 }
 
+
+CommandPacket* packet_next(void){
+  /* Return a pointer to the next command packet in the circular buffer.
+  Returns NULL if there are no more commands in the buffer.
+  */
+  CommandPacket *result = &CommandBuffer[CommandBufferHead];
+  CommandBufferHead++;
+  if(CommandBufferHead > COMMAND_BUFFER_LENGTH) CommandBufferHead = 0;
+  if(CommandBufferHead == CommandBufferTail) result = NULL;
+  return result;
+}
+
+
+void packet_buffer_flush(void){
+  /* Reset the packet buffer (just sets the head and tail indices to zero) */
+  CommandBufferHead = 0;
+  CommandBufferTail = 0;
+}
+
+void packet_buffer_print(void){
+  /* Print the entire circular buffer to stdout, for debug purposes */
+  unsigned int i = CommandBufferHead;
+
+  while(i != CommandBufferTail){
+    // print
+
+    // Handle stepping over the circular buffer
+    i++;
+    if(i > COMMAND_BUFFER_LENGTH) i = 0;
+    if(i == CommandBufferTail) break;
+  }
+}
