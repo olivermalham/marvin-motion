@@ -3,12 +3,17 @@ enum Commands {
     MOVE,
     STOP,
     STATUS,
-    HARDSTOP
+    HARDSTOP,
+    BUFFER_OVERFLOW,
+    NO_COMMAND,
+    BAD_COMMAND,
+    PRINT, // Print the command buffer, for human info
+    NO_ECHO // Stop echoing characters back to host
 };
 
 struct CommandMotor {
     float distance;
-    float time;
+    float velocity;
 };
 
 struct CommandPacket {
@@ -17,7 +22,10 @@ struct CommandPacket {
 };
 
 unsigned int packet_read(void);
-void packet_parse(unsigned char* packet_string);
-CommandPacket* packet_next(void);
-void packet_buffer_flush(void);
-void packet_buffer_print(void);
+int packet_parse();
+void packet_buffer_clear();
+
+CommandPacket* command_next(void);
+void command_buffer_flush(void);
+void command_buffer_print(void);
+void command_clear(CommandPacket* packet);

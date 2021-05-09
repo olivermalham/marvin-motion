@@ -16,6 +16,8 @@
 // Milliseconds per servo frame
 #define SERVO_FRAME 20
 
+extern bool Echo;
+
 unsigned long milliseconds = 0;
 unsigned long frame_count = 0;
 
@@ -32,8 +34,10 @@ void encoder_handler(uint gpio, uint32_t events){
 
 void setup() {
   stdio_init_all();
+  printf("=============================\n");
   printf("Marvin motion controller v0.1\n");
-
+  printf("=============================\n\n");
+  printf("Command > ");
   // Configure on board LED
   gpio_init(LED_PIN);
   gpio_set_dir(LED_PIN, GPIO_OUT);
@@ -85,7 +89,12 @@ void loop() {
   // Use this while loop for handling everything that needs to process more quickly than the servo loop
   while((to_ms_since_boot(get_absolute_time()) - frame_start) < SERVO_FRAME){
     if(packet_read()){
-      printf("Command received\n");
+      if(packet_parse() == HARDSTOP){
+        // HARDSTOP!
+        printf("HARDSTOP!!!\n");
+      };
+      // Interactive mode, so display prompt
+      if(Echo) printf("Command > ");
     }
   };
 
