@@ -25,6 +25,7 @@ unsigned int packet_read(void);
 int packet_parse();
 void packet_buffer_clear();
 
+void command_advance(void);
 CommandPacket* command_next(void);
 void command_buffer_flush(void);
 void command_buffer_print(void);

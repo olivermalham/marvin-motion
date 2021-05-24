@@ -125,8 +125,8 @@ int packet_parse(){
     return PRINT;
   }
 
-  // NO_ECHO Command - immediate response, not queued
-  failure = strncmp(packetBuffer, "NO_ECHO", 7);
+  // NOECHO Command - immediate response, not queued
+  failure = strncmp(packetBuffer, "NOECHO", 6);
   if(!failure){
     Echo = false;
     packet_buffer_clear();
@@ -142,6 +142,8 @@ int packet_parse(){
   if(!failure){
     newPacket->command = STOP;
     printf("packet_parse: STOP\n");
+    command_advance();
+    return STOP;
   }
 
   // MOVE Command
@@ -170,24 +172,30 @@ int packet_parse(){
       printf("packet_parse: BAD_COMMAND\n");
       packet_buffer_clear();
       return BAD_COMMAND;
+    } else {
+      command_advance();
+      return MOVE;
     }
   }
-  
-  // Add extra queued commands here if required...
-  // Handle the buffers
-  CommandBufferTail++;
-  if(CommandBufferTail > COMMAND_BUFFER_LENGTH) CommandBufferTail = 0;
+
+  // Handle unknown / borken commands
+  printf("packet_parse: BAD_COMMAND\n");
   packet_buffer_clear();
-  
-  // Finally return the type of command just received
-  // (Only really useful for the immediate action commands)
-  return newPacket->command;
+  return BAD_COMMAND;
 }
 
 
 void packet_buffer_clear(){
   // Just reset the buffer index to zero
   packetBufferEnd = 0;
+}
+
+
+void command_advance(void){
+  // Advance the command buffer to the next free slot.
+  CommandBufferTail++;
+  if(CommandBufferTail > COMMAND_BUFFER_LENGTH) CommandBufferTail = 0;
+  packet_buffer_clear();
 }
 
 
