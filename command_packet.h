@@ -2,6 +2,8 @@
 enum Commands {
     MOVE,
     STOP,
+    TEST,
+    CALIB,
     STATUS,
     HARDSTOP,
     BUFFER_OVERFLOW,

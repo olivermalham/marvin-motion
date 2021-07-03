@@ -32,6 +32,7 @@ unsigned int packet_read(void){
       STOP;
       STATUS;
       HARDSTOP;
+      TEST:2;
   */  
   char c;
   c = getchar_timeout_us(0);
@@ -137,6 +138,46 @@ int packet_parse(){
   newPacket = &CommandBuffer[CommandBufferTail];
   command_clear(newPacket);
   
+  // TEST Command - set the specified motor to 100%
+  failure = strncmp(packetBuffer, "TEST", 4);
+  if(!failure){
+    int motor_no = 0;
+    int args = sscanf(packetBuffer, "TEST:%i", motor_no);
+    
+    newPacket->motor[motor_no].distance = 10000;
+    newPacket->motor[motor_no].velocity = 1.0;
+
+    if(args != 1){
+      printf("packet_parse: BAD_COMMAND\n");
+      packet_buffer_clear();
+      return BAD_COMMAND;
+    } else {
+      command_advance();
+      return TEST;
+    }
+  }
+
+  // CALIB Command - Ramp up the specified motor PWM, monitoring encoder output
+  // to determine the PWM offset and parameters for mapping PWM to speed
+  failure = strncmp(packetBuffer, "CALIB", 5);
+  if(!failure){
+    int motor_no = 0;
+    int args = sscanf(packetBuffer, "CALIB:%i", motor_no);
+    
+    // newPacket->motor[motor_no].distance = 10000;
+    // newPacket->motor[motor_no].velocity = 1.0;
+
+    if(args != 1){
+      printf("packet_parse: BAD_COMMAND\n");
+      packet_buffer_clear();
+      return BAD_COMMAND;
+    } else {
+      command_advance();
+      return CALIB;
+    }
+  }
+
+
   // STOP Command
   failure = strncmp(packetBuffer, "STOP", 4);
   if(!failure){
