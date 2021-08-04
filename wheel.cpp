@@ -28,7 +28,7 @@ void WheelClass::stop(void){
 }
 
 void WheelClass::reset(void){
-  PWM_max = 254;
+  PWM_max = 1024;
   PWM_offset = 80;
   
   V_max = 1700.0 / 50; // 34
@@ -39,6 +39,7 @@ void WheelClass::reset(void){
 
   velocity = 0.0;
   distance = 0.0;
+  pwm = 0;
 }
 
 void WheelClass::set_pins(int outA, int outB, int encoderA, int encoderB, void* handler){

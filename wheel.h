@@ -6,7 +6,7 @@
 class WheelClass {
 
   public:
-    int PWM_max = 254;
+    int PWM_max = 1024;
     int PWM_offset = 80;
     float PWM_convert = 5.14;
     float V_max = 1700.0;
