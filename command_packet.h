@@ -32,3 +32,4 @@ CommandPacket* command_next(void);
 void command_buffer_flush(void);
 void command_buffer_print(void);
 void command_clear(CommandPacket* packet);
+void command_init(void);

@@ -304,3 +304,10 @@ void command_clear(CommandPacket* packet){
     packet->motor[i].velocity = 0.0;
   }
 }
+
+void command_init(void){
+  // Initialise the command buffer
+  for(int i = 0; i < COMMAND_BUFFER_LENGTH; i++){
+    command_clear(&CommandBuffer[i]);
+  }
+}

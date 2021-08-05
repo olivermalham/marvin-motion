@@ -44,6 +44,8 @@ void setup() {
   gpio_init(LED_PIN);
   gpio_set_dir(LED_PIN, GPIO_OUT);
 
+  command_init();
+
   // Initialise all the motor classes
   wheel[0].set_pins(M1A, M1B, E1A, E1B, (void *)&encoder_handler);
   wheel[0].reset();
