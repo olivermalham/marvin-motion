@@ -39,6 +39,7 @@ void WheelClass::reset(void){
 
   velocity = 0.0;
   distance = 0.0;
+  distance_target = 0.0;
   pwm = 0;
 }
 
@@ -93,7 +94,8 @@ void WheelClass::update_distance(float delta){
 }
 
 int WheelClass::servo_tick(void){
-  trapezoid();
+  if(distance != distance_target)
+	trapezoid();
 //  if(distance_target > 2*D_max) return trapezoid();
 //  else return triangle();
   return 0;
