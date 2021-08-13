@@ -21,6 +21,8 @@ extern bool Echo;
 unsigned long milliseconds = 0;
 unsigned long frame_count = 0;
 
+unsigned long seconds = 0;
+
 // Array of Wheel classes
 WheelClass wheel[6];
 
@@ -49,7 +51,7 @@ void setup() {
   // Initialise all the motor classes
   wheel[0].set_pins(M1A, M1B, E1A, E1B, (void *)&encoder_handler);
   wheel[0].reset();
-  /*
+  
   wheel[1].set_pins(M2A, M2B, E2A, E2B, (void *)&encoder_handler);
   wheel[1].reset();
   
@@ -64,7 +66,7 @@ void setup() {
   
   wheel[5].set_pins(M6A, M6B, E6A, E6B, (void *)&encoder_handler);
   wheel[5].reset();
-*/
+
   milliseconds = to_ms_since_boot(get_absolute_time());
 }
 
@@ -126,13 +128,38 @@ void loop() {
     gpio_put(LED_PIN, 1);
   }
   
-  if(frame_count > 50) {
+  if(100 > frame_count > 50) {
     gpio_put(LED_PIN, 0);
   } 
   
-  if(frame_count > 100){
+  if(frame_count > 1000){
     frame_count = 0;
- //   send_status(frame_count, wheel, WHEEL_COUNT);
+    seconds++;
+    //send_status(frame_count, wheel, WHEEL_COUNT);
+  }
+
+  switch(seconds) {
+    case 0:  wheel[0].stop();
+              wheel[1].move(10000.0, 1.0);
+              break;
+    case 10:  wheel[1].stop();
+              wheel[2].move(10000.0, 1.0);
+              break;
+    case 20:  wheel[2].stop();
+              wheel[3].move(10000.0, 1.0);
+              break;
+    case 30:  wheel[3].stop();
+              wheel[4].move(10000.0, 1.0);
+              break;
+    case 40:  wheel[4].stop();
+              wheel[5].move(10000.0, 1.0);
+              break;
+    case 50:  wheel[5].stop();
+              wheel[6].move(10000.0, 1.0);
+              break;
+    case 60:  wheel[6].stop();
+              seconds = 0;
+              break;
   }
 
   ++frame_count;
@@ -158,10 +185,6 @@ int main(void){
 
   // Configure everything
   setup();
-//  for(int i = 0; i < WHEEL_COUNT; i++){
-//	wheel[i].move(1000.0, 1.0);
-//  };
-  wheel[0].move(1000.0, 1.0);
 
   // Infinite loop
   while(true){
