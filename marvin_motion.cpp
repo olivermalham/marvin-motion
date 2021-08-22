@@ -11,7 +11,7 @@
 // Serial comms speed
 #define SERIAL_SPEED 115200
 
-#define WHEEL_COUNT 1
+#define WHEEL_COUNT 6
 
 // Milliseconds per servo frame
 #define SERVO_FRAME 20
@@ -24,16 +24,39 @@ unsigned long frame_count = 0;
 unsigned long seconds = 0;
 
 // Array of Wheel classes
-WheelClass wheel[6];
+WheelClass wheel[WHEEL_COUNT];
 
 CommandPacket* currentCommand = NULL;
 
+// Send the current status via serial link
+void send_status(void){
+  // Format: F<frame_count>;M1,T<>,D<>,V<>,P<>;
+  
+  printf("F%u;", frame_count);
+
+  for(int i = 0; i < WHEEL_COUNT; i++){
+    printf("M%i,", i); 
+//    printf("T%f,", wheel[i].distance_target); 
+    printf("D%f,", wheel[i].distance); 
+//    printf("V%f,", wheel[i].velocity);
+    printf("P%i;  ", wheel[i].pwm);
+  }
+
+  printf("\n");
+}
+
+void stop_all(void){
+  for(int i = 0; i < WHEEL_COUNT; i++){
+	  wheel[i].stop();
+  }
+}
+
 // Interrupt handler for the encoder inputs
 void encoder_handler(uint gpio, uint32_t events){
-  for (int i = 0; i < WHEEL_COUNT; i++) {
+//  for (int i = 0; i < WHEEL_COUNT; i++) {
     // Exit the loop if the wheel claims the tick as it's own
-    if(wheel[i].encoder_tick(gpio)) break;
-  }
+//    if(wheel[i].encoder_tick(gpio)) break;
+//  }
 }
 
 void setup() {
@@ -84,7 +107,7 @@ void loop() {
     wheel[i].servo_tick();
     if(wheel[i].velocity > 0.0) in_motion = true;
   }
-
+/*
   // Command despatcher. 
   if(!in_motion) {
     currentCommand = command_next();
@@ -102,11 +125,11 @@ void loop() {
         break;
     }
   }
-  
+*/  
   // 20ms / 50Hz servo frame, so wait whatever time we have left since we started this loop
   // Use this while loop for handling everything that needs to process more quickly than the servo loop
   while((to_ms_since_boot(get_absolute_time()) - frame_start) < SERVO_FRAME){
-    if(packet_read()){
+/*    if(packet_read()){
       if(packet_parse() == HARDSTOP){
         // HARDSTOP! Command queue will have already been dumped, so kill all motors
         printf("HARDSTOP!!!\n");
@@ -115,14 +138,14 @@ void loop() {
       };
       // Interactive mode, so display prompt
       if(Echo) printf("Command > ");
-    }
+    }*/
   };
-
+/*
   // Simulate movement. Should be driven by encoder output
   // for(int i = 0; i < WHEEL_COUNT; i++){
   //   wheel[i].update_distance(wheel[i].velocity);
   // }
-
+*/
   // Any thing the runs at base 50Hz should go here
   if(frame_count < 50) {
     gpio_put(LED_PIN, 1);
@@ -130,16 +153,19 @@ void loop() {
   
   if(100 > frame_count > 50) {
     gpio_put(LED_PIN, 0);
-  } 
-  
-  if(frame_count > 1000){
-    frame_count = 0;
-    seconds++;
-    //send_status(frame_count, wheel, WHEEL_COUNT);
+    //seconds++;
+    //send_status();
   }
 
+  if(frame_count > 100) {
+    seconds++;
+    send_status();
+    frame_count = 0;
+  }
+
+/*
   switch(seconds) {
-    case 0:  wheel[0].stop();
+    case 0:   wheel[0].stop();
               wheel[1].move(10000.0, 1.0);
               break;
     case 10:  wheel[1].stop();
@@ -158,27 +184,12 @@ void loop() {
               wheel[6].move(10000.0, 1.0);
               break;
     case 60:  wheel[6].stop();
-              seconds = 0;
+              wheel[0].move(10000.0, 1.0);
+	      seconds = 0;
               break;
   }
-
+*/
   ++frame_count;
-}
-
-void send_status(unsigned long frame_count, WheelClass* wheels, int count){
-  // Format: F<frame_count>;M1,T<>,D<>,V<>,P<>;
-  
-  printf("F%u;", frame_count);
-
-  for(int i = 0; i < count; i++){
-    printf("M%i,", i); 
-    printf("T%i,", wheels[i].distance_target); 
-    printf("D%i,", wheels[i].distance); 
-    printf("V%i,", wheels[i].velocity);
-    printf("P%i;", wheels[i].pwm);
-  }
-
-  printf("\n");
 }
 
 int main(void){
@@ -186,6 +197,13 @@ int main(void){
   // Configure everything
   setup();
 
+  wheel[0].move(100000.0, 1.0);
+  wheel[1].move(100000.0, 1.0);
+  wheel[2].move(100000.0, 1.0);
+  wheel[3].move(100000.0, 1.0);
+  wheel[4].move(100000.0, 1.0);
+  wheel[5].move(100000.0, 1.0);
+  
   // Infinite loop
   while(true){
     loop();

@@ -7,6 +7,9 @@
 WheelClass::WheelClass(void){
   distance = 0;
   distance_target = 0;
+  direction = 1;
+  velocity = 0.0;
+  pwm = 0;
 }
 
 void WheelClass::move(float distance, float scale){
@@ -14,6 +17,9 @@ void WheelClass::move(float distance, float scale){
   D_max = D_max * scale;
   V_max = V_max * scale;
   A_max = A_max * scale;
+
+  if(distance < 0) direction = -1;
+  else direction = 1;
 
   // If total distance is less than twice the distance required to ramp up to the maximum velocity, then 
   // we have a triangluar motion profile. Recalculate accordingly.
@@ -28,7 +34,7 @@ void WheelClass::stop(void){
 }
 
 void WheelClass::reset(void){
-  PWM_max = 1024;
+  PWM_max = 1000;
   PWM_offset = 80;
   
   V_max = 1700.0 / 50; // 34
@@ -124,7 +130,7 @@ void WheelClass::triangle(void){
 void WheelClass::update_motor(void){
   pwm = int(velocity * PWM_convert) + PWM_offset;
   if(velocity <= 0.0) pwm = 0;
-  if(pwm > 1023) pwm = 1023;
+  if(pwm > PWM_max) pwm = PWM_max;
   
   if (direction > 0){
     pwm_set_chan_level(pwm_slice, PWM_CHAN_A, pwm);
