@@ -43,7 +43,7 @@ void WheelClass::reset(void){
   pwm = 0;
 }
 
-void WheelClass::set_pins(int outA, int outB, int encoderA, int encoderB, void* handler){
+void WheelClass::set_pins(int outA, int outB, int encoderA, int encoderB){
   outputA_pin = outA;
   outputB_pin = outB;
   encoderA_pin = encoderA;
@@ -70,24 +70,27 @@ void WheelClass::set_pins(int outA, int outB, int encoderA, int encoderB, void* 
   // Set the PWM running
   pwm_set_enabled(pwm_slice, true);
 
-  // Configure encoder IRQ handling
-  gpio_set_irq_enabled_with_callback(encoderA, GPIO_IRQ_EDGE_RISE, true, (gpio_irq_callback_t) handler);
+  gpio_init(encoderA);
+  gpio_set_dir(encoderA, GPIO_IN);
   gpio_init(encoderB);
   gpio_set_dir(encoderB, GPIO_IN);
 }
 
-// Called by the interrupt handler for the encoders to update the distance count
-bool WheelClass::encoder_tick(uint gpio){
-  if(gpio == encoderA_pin){
-    if(gpio_get(encoderB_pin)){
+// Polled by the main loop to catch encoder ticks (interupt driven would be better, but couldn't make it work)
+void WheelClass::encoder_tick(void){
+  int encoderA_current = gpio_get(encoderA_pin);
+  int encoderB_current = gpio_get(encoderB_pin);
+  
+  // Only trigger on a rising edge
+  if(encoderA_current && !encoderA_last){
+    encoderA_last = encoderA_current;
+    if(encoderB_current){
       distance += 1;
     } else {
       distance -= 1;
     }
-    return true;
   }
-  return false;
-};
+}
 
 void WheelClass::update_distance(float delta){
   distance += delta;

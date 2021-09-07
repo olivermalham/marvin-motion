@@ -28,14 +28,6 @@ WheelClass wheel[6];
 
 CommandPacket* currentCommand = NULL;
 
-// Interrupt handler for the encoder inputs
-void encoder_handler(uint gpio, uint32_t events){
-  for (int i = 0; i < WHEEL_COUNT; i++) {
-    // Exit the loop if the wheel claims the tick as it's own
-    if(wheel[i].encoder_tick(gpio)) break;
-  }
-}
-
 void setup() {
   stdio_init_all();
   printf("=============================\n");
@@ -49,22 +41,22 @@ void setup() {
   command_init();
 
   // Initialise all the motor classes
-  wheel[0].set_pins(M1A, M1B, E1A, E1B, (void *)&encoder_handler);
+  wheel[0].set_pins(M1A, M1B, E1A, E1B);
   wheel[0].reset();
   
-  wheel[1].set_pins(M2A, M2B, E2A, E2B, (void *)&encoder_handler);
+  wheel[1].set_pins(M2A, M2B, E2A, E2B);
   wheel[1].reset();
   
-  wheel[2].set_pins(M3A, M3B, E3A, E3B, (void *)&encoder_handler);
+  wheel[2].set_pins(M3A, M3B, E3A, E3B);
   wheel[2].reset();
 
-  wheel[3].set_pins(M4A, M4B, E4A, E4B, (void *)&encoder_handler);
+  wheel[3].set_pins(M4A, M4B, E4A, E4B);
   wheel[3].reset();
   
-  wheel[4].set_pins(M5A, M5B, E5A, E5B, (void *)&encoder_handler);
+  wheel[4].set_pins(M5A, M5B, E5A, E5B);
   wheel[4].reset();
   
-  wheel[5].set_pins(M6A, M6B, E6A, E6B, (void *)&encoder_handler);
+  wheel[5].set_pins(M6A, M6B, E6A, E6B);
   wheel[5].reset();
 
   milliseconds = to_ms_since_boot(get_absolute_time());
@@ -106,6 +98,12 @@ void loop() {
   // 20ms / 50Hz servo frame, so wait whatever time we have left since we started this loop
   // Use this while loop for handling everything that needs to process more quickly than the servo loop
   while((to_ms_since_boot(get_absolute_time()) - frame_start) < SERVO_FRAME){
+
+    // Poll for encoder pulses
+    for(int i = 0; i < WHEEL_COUNT; i++){
+      wheel[i].encoder_tick();
+    }
+
     if(packet_read()){
       if(packet_parse() == HARDSTOP){
         // HARDSTOP! Command queue will have already been dumped, so kill all motors

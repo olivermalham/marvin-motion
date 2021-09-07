@@ -30,14 +30,17 @@ class WheelClass {
     float velocity = 0;
     int pwm = 0;
 
+    int encoderA_last = 0;
+    int encoderB_last = 0;
+
     WheelClass(void);
     void move(float distance, float scale);
     void stop(void);
     void reset(void);
-    void set_pins(int outA, int outB, int encoderA, int encoderB, void* handler);
+    void set_pins(int outA, int outB, int encoderA, int encoderB);
     void update_distance(float delta);
     int servo_tick(void);
-    bool encoder_tick(uint gpio);
+    void encoder_tick(void);
 
   private:
     void trapezoid(void);
