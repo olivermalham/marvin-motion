@@ -3,19 +3,19 @@
 
 // Motor drive pins. Left hand side are odd, right side even. Numbered from the front, 
 // each motor has A and B drive pins.
-#define M1A 0
-#define M1B 1
-#define M3A 2
-#define M3B 3
-#define M5A 4
-#define M5B 5
+#define M1A 6
+#define M1B 7
+#define M3A 8
+#define M3B 9
+#define M5A 10
+#define M5B 11
 
-#define M2A 6
-#define M2B 7
-#define M4A 8
-#define M4B 9
-#define M6A 10
-#define M6B 11
+#define M2A 0
+#define M2B 1
+#define M4A 2
+#define M4B 3
+#define M6A 4
+#define M6B 5
 
 // Define pins for encoder input, A and B for each wheel
 #define E1A 12

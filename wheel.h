@@ -6,12 +6,12 @@
 class WheelClass {
 
   public:
-    int PWM_max = 1024;
-    int PWM_offset = 80;
-    float PWM_convert = 5.14;
-    float V_max = 1700.0;
-    float A_max = 566.7;
-    float D_max = 2550.0;
+    int PWM_max;// = 1024;
+    int PWM_offset;// = 80;
+    float PWM_convert;// = 5.14;
+    float V_max;// = 1700.0;
+    float A_max;// = 566.7;
+    float D_max;// = 2550.0;
 
     unsigned int outputA_pin;
     unsigned int outputB_pin;
