@@ -129,7 +129,6 @@ void loop() {
   // 20ms / 50Hz servo frame, so wait whatever time we have left since we started this loop
   // Use this while loop for handling everything that needs to process more quickly than the servo loop
   while((to_ms_since_boot(get_absolute_time()) - frame_start) < SERVO_FRAME){
-<<<<<<< HEAD
 
     // Poll for encoder pulses
     for(int i = 0; i < WHEEL_COUNT; i++){
@@ -137,9 +136,6 @@ void loop() {
     }
 
     if(packet_read()){
-=======
-/*    if(packet_read()){
->>>>>>> 0989ea99d9be0ce089404da455b7d41fb0978e1f
       if(packet_parse() == HARDSTOP){
         // HARDSTOP! Command queue will have already been dumped, so kill all motors
         printf("HARDSTOP!!!\n");
@@ -148,7 +144,7 @@ void loop() {
       };
       // Interactive mode, so display prompt
       if(Echo) printf("Command > ");
-    }*/
+    }
   };
 /*
   // Simulate movement. Should be driven by encoder output
