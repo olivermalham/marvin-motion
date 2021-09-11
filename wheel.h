@@ -30,8 +30,8 @@ class WheelClass {
     float velocity = 0;
     int pwm = 0;
 
-    int encoderA_last = 0;
-    int encoderB_last = 0;
+    bool encoderA_last = false;
+    bool encoderB_last = false;
 
     WheelClass(void);
     void move(float distance, float scale);
