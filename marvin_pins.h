@@ -18,16 +18,16 @@
 #define M6B 5
 
 // Define pins for encoder input, A and B for each wheel
-#define E1A 12
-#define E1B 13
-#define E3A 14
-#define E3B 15
-#define E5A 16
-#define E5B 17
+#define E1A 16
+#define E1B 17
+#define E3A 18
+#define E3B 19
+#define E5A 20
+#define E5B 21
 
-#define E2A 18
-#define E2B 19
-#define E4A 20
-#define E4B 21
-#define E6A 22
-#define E6B 26
+#define E2A 22
+#define E2B 26
+#define E4A 14
+#define E4B 15
+#define E6A 13
+#define E6B 12

@@ -10,6 +10,11 @@ WheelClass::WheelClass(void){
   direction = 1;
   velocity = 0.0;
   pwm = 0;
+  encoderA_last = 0;
+  encoderB_last = 0;
+  outputA_pin = 0;
+  outputB_pin = 0;
+  pwm_slice = 0;
 }
 
 void WheelClass::move(float distance, float scale){
@@ -34,8 +39,8 @@ void WheelClass::stop(void){
 }
 
 void WheelClass::reset(void){
-  PWM_max = 1000;
-  PWM_offset = 80;
+  PWM_max = 1022;
+  PWM_offset = 650;
   
   V_max = 1700.0 / 50; // 34
   A_max = V_max / 150.0; // 11.333
@@ -47,6 +52,7 @@ void WheelClass::reset(void){
   distance = 0.0;
   distance_target = 0.0;
   pwm = 0;
+  encoderA_last = gpio_get(encoderA_pin);
 }
 
 void WheelClass::set_pins(int outA, int outB, int encoderA, int encoderB){
@@ -84,18 +90,21 @@ void WheelClass::set_pins(int outA, int outB, int encoderA, int encoderB){
 
 // Polled by the main loop to catch encoder ticks (interupt driven would be better, but couldn't make it work)
 void WheelClass::encoder_tick(void){
-  int encoderA_current = gpio_get(encoderA_pin);
-  int encoderB_current = gpio_get(encoderB_pin);
+  bool encoderA_current = gpio_get(encoderA_pin);
+  bool encoderB_current = gpio_get(encoderB_pin);
   
+  // If the motor isn't powered, ignore the encoder
+  if(!pwm) return;
+
   // Only trigger on a rising edge
-  if(encoderA_current && !encoderA_last){
-    encoderA_last = encoderA_current;
+  if(encoderA_current & !encoderA_last){
     if(encoderB_current){
-      distance += 1;
+      distance--;
     } else {
-      distance -= 1;
+      distance++;
     }
   }
+  encoderA_last = encoderA_current;
 }
 
 void WheelClass::update_distance(float delta){
@@ -104,7 +113,7 @@ void WheelClass::update_distance(float delta){
 
 int WheelClass::servo_tick(void){
   if(distance != distance_target)
-  	trapezoid();
+    trapezoid();
 //  if(distance_target > 2*D_max) return trapezoid();
 //  else return triangle();
   return 0;
@@ -114,7 +123,7 @@ void WheelClass::trapezoid(void){
   if(distance < D_max){
     // Ramp up speed to maximum
     velocity += A_max;
-    //if(velocity > V_max) velocity = V_max;
+    if(velocity > V_max) velocity = V_max;
   } else if(distance >= D_max && distance < distance_target - D_max) {
     // Constance velocity
   } else {

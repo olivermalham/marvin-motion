@@ -20,7 +20,7 @@ extern bool Echo;
 
 unsigned long milliseconds = 0;
 unsigned long frame_count = 0;
-
+unsigned long frame_total = 0;
 unsigned long seconds = 0;
 
 // Array of Wheel classes
@@ -32,14 +32,15 @@ CommandPacket* currentCommand = NULL;
 void send_status(void){
   // Format: F<frame_count>;M1,T<>,D<>,V<>,P<>;
   
-  printf("F%u;", frame_count);
+  printf("F%u;  ", frame_total);
 
   for(int i = 0; i < WHEEL_COUNT; i++){
-    printf("M%i,", i); 
+    printf("M%i,", i+1); 
 //    printf("T%f,", wheel[i].distance_target); 
     printf("D%f,", wheel[i].distance); 
 //    printf("V%f,", wheel[i].velocity);
-    printf("P%i;  ", wheel[i].pwm);
+    printf("P%i,  ", wheel[i].pwm);
+    printf("E:%i,%i;  ", gpio_get(wheel[i].encoderA_pin), gpio_get(wheel[i].encoderB_pin));
   }
 
   printf("\n");
@@ -52,12 +53,12 @@ void stop_all(void){
 }
 
 // Interrupt handler for the encoder inputs
-void encoder_handler(uint gpio, uint32_t events){
+//void encoder_handler(uint gpio, uint32_t events){
 //  for (int i = 0; i < WHEEL_COUNT; i++) {
     // Exit the loop if the wheel claims the tick as it's own
 //    if(wheel[i].encoder_tick(gpio)) break;
 //  }
-}
+//}
 
 void setup() {
   stdio_init_all();
@@ -146,28 +147,29 @@ void loop() {
       if(Echo) printf("Command > ");
     }
   };
-/*
+
   // Simulate movement. Should be driven by encoder output
-  // for(int i = 0; i < WHEEL_COUNT; i++){
-  //   wheel[i].update_distance(wheel[i].velocity);
-  // }
-*/
+//  for(int i = 0; i < WHEEL_COUNT; i++){
+//     wheel[i].update_distance(wheel[i].velocity);
+//  }
+
   // Any thing the runs at base 50Hz should go here
   if(frame_count < 50) {
     gpio_put(LED_PIN, 1);
   }
   
-  if(100 > frame_count > 50) {
+  if(frame_count > 50) {
     gpio_put(LED_PIN, 0);
   }
 
-  if(frame_count > 100) {
+  if(frame_count >= 100) {
     seconds++;
-    send_status();
+    //send_status();
     frame_count = 0;
   }
 
   ++frame_count;
+  ++frame_total;
 }
 
 int main(void){
