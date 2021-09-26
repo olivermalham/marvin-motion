@@ -1,0 +1,14 @@
+ToDo
+--------
+
+Need to implement PID control logic for the wheels. 
+Need to coordinate the 6 wheels movement, use the servo loop to provide a constant time base.
+
+
+Control loop needs to calculate the expected distance travelled for each wheel, compare to the actual distance traveled 
+and use that to determine an error correction factor to apply to the PWM value.
+
+Question: how can I implement this in a way that keeps the code well structured?
+
+
+

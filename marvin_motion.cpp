@@ -107,7 +107,7 @@ void loop() {
     wheel[i].servo_tick();
     if(wheel[i].velocity > 0.0) in_motion = true;
   }
-/*
+
   // Command despatcher. 
   if(!in_motion) {
     currentCommand = command_next();
@@ -125,7 +125,7 @@ void loop() {
         break;
     }
   }
-*/  
+  
   // 20ms / 50Hz servo frame, so wait whatever time we have left since we started this loop
   // Use this while loop for handling everything that needs to process more quickly than the servo loop
   while((to_ms_since_boot(get_absolute_time()) - frame_start) < SERVO_FRAME){
@@ -159,8 +159,6 @@ void loop() {
   
   if(100 > frame_count > 50) {
     gpio_put(LED_PIN, 0);
-    //seconds++;
-    //send_status();
   }
 
   if(frame_count > 100) {
@@ -169,32 +167,6 @@ void loop() {
     frame_count = 0;
   }
 
-/*
-  switch(seconds) {
-    case 0:   wheel[0].stop();
-              wheel[1].move(10000.0, 1.0);
-              break;
-    case 10:  wheel[1].stop();
-              wheel[2].move(10000.0, 1.0);
-              break;
-    case 20:  wheel[2].stop();
-              wheel[3].move(10000.0, 1.0);
-              break;
-    case 30:  wheel[3].stop();
-              wheel[4].move(10000.0, 1.0);
-              break;
-    case 40:  wheel[4].stop();
-              wheel[5].move(10000.0, 1.0);
-              break;
-    case 50:  wheel[5].stop();
-              wheel[6].move(10000.0, 1.0);
-              break;
-    case 60:  wheel[6].stop();
-              wheel[0].move(10000.0, 1.0);
-	      seconds = 0;
-              break;
-  }
-*/
   ++frame_count;
 }
 
@@ -203,12 +175,12 @@ int main(void){
   // Configure everything
   setup();
 
-  wheel[0].move(100000.0, 1.0);
-  wheel[1].move(100000.0, 1.0);
-  wheel[2].move(100000.0, 1.0);
-  wheel[3].move(100000.0, 1.0);
-  wheel[4].move(100000.0, 1.0);
-  wheel[5].move(100000.0, 1.0);
+  // wheel[0].move(100000.0, 1.0);
+  // wheel[1].move(100000.0, 1.0);
+  // wheel[2].move(100000.0, 1.0);
+  // wheel[3].move(100000.0, 1.0);
+  // wheel[4].move(100000.0, 1.0);
+  // wheel[5].move(100000.0, 1.0);
   
   // Infinite loop
   while(true){
