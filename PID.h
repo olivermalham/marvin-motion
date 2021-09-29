@@ -4,8 +4,6 @@
 
 class PID
 {
-
-
   public:
 
   //Constants used in some of the functions below
@@ -32,14 +30,14 @@ class PID
                                           //   SetSampleTime respectively
 
     void SetOutputLimits(double, double); // * clamps the output to a specific range. 0-255 by default, but
-										                      //   it's likely the user will want to change this depending on
-										                      //   the application
-	
+                                          //   it's likely the user will want to change this depending on
+                                          //   the application
+
 
 
   //available but not commonly used functions ********************************************************
     void SetTunings(double, double,       // * While most users will set the tunings once in the 
-                    double);         	    //   constructor, this function gives the user the option
+                    double);         	  //   constructor, this function gives the user the option
                                           //   of changing tunings during runtime for Adaptive control
     void SetTunings(double, double,       // * overload for specifying proportional mode
                     double, int);         	  

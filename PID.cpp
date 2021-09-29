@@ -101,7 +101,9 @@ void PID::SetTunings(double Kp, double Ki, double Kd, int POn)
    pOn = POn;
    pOnE = POn == P_ON_E;
 
-   dispKp = Kp; dispKi = Ki; dispKd = Kd;
+   dispKp = Kp;
+   dispKi = Ki;
+   dispKd = Kd;
 
    double SampleTimeInSec = ((double)SampleTime)/1000;
    kp = Kp;

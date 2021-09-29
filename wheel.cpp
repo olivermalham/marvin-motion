@@ -7,6 +7,7 @@
 WheelClass::WheelClass(void){
   distance = 0;
   distance_target = 0;
+  distance_calc = 0;
   direction = 1;
   velocity = 0.0;
   pwm = 0;
@@ -17,8 +18,9 @@ WheelClass::WheelClass(void){
   pwm_slice = 0;
 }
 
-void WheelClass::move(float distance, float scale){
-  distance_target = distance;
+void WheelClass::move(float distance_new, float scale){
+  distance_target = distance_new;
+  distance_calc = distance; // Start out with the calculated distance equal to the currently measured distance
   D_max = D_max * scale;
   V_max = V_max * scale;
   A_max = A_max * scale;
@@ -51,6 +53,7 @@ void WheelClass::reset(void){
   velocity = 0.0;
   distance = 0.0;
   distance_target = 0.0;
+  distance_calc = 0.0;
   pwm = 0;
   encoderA_last = gpio_get(encoderA_pin);
 }
@@ -116,6 +119,9 @@ int WheelClass::servo_tick(void){
     trapezoid();
 //  if(distance_target > 2*D_max) return trapezoid();
 //  else return triangle();
+  
+  distance_last = distance; // Store the distance measured on the previous servo tick for the PID loop
+  
   return 0;
 }
 
@@ -131,7 +137,8 @@ void WheelClass::trapezoid(void){
     velocity -= A_max;
     if(velocity <= 0) velocity = 0;
   }
-
+  distance_calc += velocity; // This is how far we should have moved by now
+  calculate_pwm(); // Calculate the PWM usng a PID controller
   update_motor();
 }
 
@@ -140,7 +147,7 @@ void WheelClass::triangle(void){
 }
 
 void WheelClass::update_motor(void){
-  pwm = int(velocity * PWM_convert) + PWM_offset;
+  // pwm = int(velocity * PWM_convert) + PWM_offset; // PWM value is now calculated by the PID controller
   if(velocity <= 0.0) pwm = 0;
   if(pwm > PWM_max) pwm = PWM_max;
   
@@ -151,4 +158,41 @@ void WheelClass::update_motor(void){
     pwm_set_chan_level(pwm_slice, PWM_CHAN_A, 0);
     pwm_set_chan_level(pwm_slice, PWM_CHAN_B, pwm);
   }
+}
+
+// TODO: Figure out what the two different Proportion on... options mean, and pick one
+// TODO: Compare code against other PID code, PID theory, ensure I understand!
+void WheelClass::calculate_pwm(void)
+{  
+  /*Compute all the working error variables*/
+
+  // distance measured
+  // distance_calc calculated
+
+  // double input = *myInput;
+  double error = distance_calc - distance; //*mySetpoint - input;
+  double dInput = distance - distance_last; //(input - lastInput);
+  outputSum += (ki * error);
+
+  /*Add Proportional on Measurement, if P_ON_M is specified*/
+  if(!pOnE) outputSum -= kp * dInput;
+
+  if(outputSum > 1.0) outputSum = 1.0;
+  else if(outputSum < 0.0) outputSum = 0.0;
+
+  /*Add Proportional on Error, if P_ON_E is specified*/
+  double output;
+  if(pOnE) output = kp * error;
+  else output = 0;
+
+  /*Compute Rest of PID Output*/
+  output += outputSum - kd * dInput;
+
+  if(output > 1.0) output = 1.0;
+  else if(output < 0.0) output = 0.0;
+  pwm = output;
+
+  /*Remember some variables for next time*/
+  lastInput = input;
+  lastTime = now;
 }

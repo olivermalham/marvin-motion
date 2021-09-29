@@ -39,10 +39,20 @@ class WheelClass {
     void reset(void);
     void set_pins(int outA, int outB, int encoderA, int encoderB);
     void update_distance(float delta);
-    int servo_tick(void);
+    int  servo_tick(void);
     void encoder_tick(void);
+    void calculate_pwm(void);
 
   private:
+    // PID constants, will need to be tuned!
+    float ki = 1.0;
+    float kp = 0.1;
+    float kd = 0.1;
+    
+    float distance_calc = 0.0; // Distance we calculate that we should be at during a move - PID setpoint
+    float outputSum = 0.0;
+    float distance_last = 0.0; // Last distance measurement
+
     void trapezoid(void);
     void triangle(void);
     void update_motor(void);    
