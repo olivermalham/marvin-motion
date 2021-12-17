@@ -5,8 +5,8 @@
 #include "wheel.h"
 
 WheelClass::WheelClass(void){
-  distance = 0;
-  distance_target = 0;
+  distance = 0.0;
+  distance_target = 0.0;
   distance_actual = 0.0;
   distance_error = 0.0;
   distance_co = 0.1;
@@ -146,7 +146,7 @@ void WheelClass::trapezoid(void){
     distance += velocity;
   }
   distance_error = distance - distance_actual;
-  velocity = velocity + (distance_error * distance_co); // Very simple proportional control algorithm
+  velocity_corrected = velocity + (distance_error * distance_co); // Very simple proportional control algorithm
   update_motor();
 }
 
@@ -155,8 +155,8 @@ void WheelClass::triangle(void){
 }
 
 void WheelClass::update_motor(){
-  pwm = int(velocity * PWM_convert) + PWM_offset;
-  if(velocity <= 0.0) pwm = 0;
+  pwm = int(velocity_corrected * PWM_convert) + PWM_offset;
+  if(velocity_corrected <= 0.0) pwm = 0;
   if(pwm > PWM_max) pwm = PWM_max;
   if(pwm < 0) pwm = 0;
   
