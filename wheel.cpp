@@ -35,7 +35,8 @@ void WheelClass::move(float distance, float scale){
 // Perform an immediate stop of the motor
 void WheelClass::stop(void){
   velocity = 0.0;
-  update_motor(velocity);
+  velocity_corrected = 0.0;
+  update_motor();
 }
 
 void WheelClass::reset(void){
@@ -142,15 +143,15 @@ void WheelClass::trapezoid(void){
     distance += velocity;
   }
   distance_error = distance - distance_actual;
-  float velocity_corrected = velocity + (distance_error * distance_co); // Very simple proportional control algorithm
-  update_motor(velocity_corrected);
+  velocity_corrected = velocity + (distance_error * distance_co); // Very simple proportional control algorithm
+  update_motor();
 }
 
 void WheelClass::triangle(void){
-  update_motor(0.0);
+  update_motor();
 }
 
-void WheelClass::update_motor(float velocity_corrected){
+void WheelClass::update_motor(){
   pwm = int(velocity_corrected * PWM_convert) + PWM_offset;
   if(velocity_corrected <= 0.0) pwm = 0;
   if(pwm > PWM_max) pwm = PWM_max;
