@@ -35,7 +35,7 @@ void WheelClass::move(float distance, float scale){
 // Perform an immediate stop of the motor
 void WheelClass::stop(void){
   velocity = 0.0;
-  update_motor();
+  update_motor(velocity);
 }
 
 void WheelClass::reset(void){
@@ -147,7 +147,7 @@ void WheelClass::trapezoid(void){
 }
 
 void WheelClass::triangle(void){
-  update_motor();
+  update_motor(0.0);
 }
 
 void WheelClass::update_motor(float velocity_corrected){
