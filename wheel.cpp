@@ -43,7 +43,7 @@ void WheelClass::reset(void){
   PWM_max = 1022;
   PWM_offset = 650;
   
-  V_max = 170.0 / 50; // 34
+  V_max = 250.0 / 50; // 34
   A_max = V_max / 150.0; // 11.333
   D_max = V_max * 150.0 * 0.5; // 51.0
 
@@ -54,7 +54,7 @@ void WheelClass::reset(void){
   distance_target = 0.0;
   distance_actual = 0.0;
   distance_error = 0.0;
-  distance_co = 0.2;
+  distance_co = 0.1;
 
   pwm = 0;
   encoderA_last = gpio_get(encoderA_pin);
@@ -117,7 +117,7 @@ void WheelClass::update_distance(float delta){
 }
 
 int WheelClass::servo_tick(void){
-  if(distance_actual != distance_target)
+  if(distance_actual <= distance_target)
     trapezoid();
 //  if(distance_target > 2*D_max) return trapezoid();
 //  else return triangle();

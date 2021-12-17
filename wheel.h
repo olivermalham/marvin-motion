@@ -25,7 +25,7 @@ class WheelClass {
     float distance_target = 0;
     float distance_actual = 0;
     float distance_error = 0;
-    float distance_co = 0.2;
+    float distance_co = 0.1;
     
     // Encoder ticks recorded (not currently used in motion control)
     int distance_encoder = 0;
