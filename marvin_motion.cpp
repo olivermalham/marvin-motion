@@ -41,7 +41,7 @@ void send_status(void){
     printf("Derr:%f,", wheel[i].distance_error);
     printf("V:%f,", wheel[i].velocity);
     printf("Va:%f,", wheel[i].velocity_corrected);
-    printf("P:%i\t", wheel[i].pwm);
+    printf("P:%i  |  ", wheel[i].pwm);
   }
 
   printf("\n");
