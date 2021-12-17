@@ -145,7 +145,7 @@ void WheelClass::trapezoid(void){
     if(velocity <= 0.0) velocity = 0.0;
     distance += velocity;
   }
-  distance_error = distance - distance_actual;
+  distance_error = distance_actual - distance;
   velocity = velocity + (distance_error * distance_co); // Very simple proportional control algorithm
   update_motor();
 }
