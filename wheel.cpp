@@ -61,8 +61,8 @@ void WheelClass::set_pins(int outA, int outB, int encoderA, int encoderB){
   encoderA_pin = encoderA;
   encoderB_pin = encoderB;
 
-  // gpio_init(outputA_pin);
-  // gpio_init(outputB_pin);
+  gpio_init(outputA_pin);
+  gpio_init(outputB_pin);
   
   // Tell GPIO 0 and 1 they are allocated to the PWM
   gpio_set_function(outputA_pin, GPIO_FUNC_PWM);
