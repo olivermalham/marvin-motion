@@ -35,12 +35,12 @@ void send_status(void){
   printf("F%u;  ", frame_total);
 
   for(int i = 0; i < WHEEL_COUNT; i++){
-    printf("M%i,", i+1); 
-    printf("D:%f,", wheel[i].distance);
-    printf("Da:%f,", wheel[i].distance_actual);
-    printf("Derr:%f,", wheel[i].distance_error);
-    printf("V:%f,", wheel[i].velocity);
-    printf("Va:%f,", wheel[i].velocity_corrected);
+    printf("M%i, ", i+1); 
+    printf("D:%f, ", wheel[i].distance);
+    printf("Da:%f, ", wheel[i].distance_actual);
+    printf("Derr:%f, ", wheel[i].distance_error);
+    printf("V:%f, ", wheel[i].velocity);
+    printf("Va:%f, ", wheel[i].velocity_corrected);
     printf("P:%i  |  ", wheel[i].pwm);
   }
 
@@ -189,8 +189,8 @@ int main(void){
 
   // Infinite loop
   while(true){
-    //loop();
-    send_status();
+    loop();
+    //send_status();
   }
 
 }
