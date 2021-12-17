@@ -32,6 +32,8 @@ void WheelClass::move(float distance, float scale){
   // If total distance is less than twice the distance required to ramp up to the maximum velocity, then 
   // we have a triangluar motion profile. Recalculate accordingly.
   if(D_max > distance / 2){ /* TODO! */};
+
+  velocity = V_max;
   
 }
 
