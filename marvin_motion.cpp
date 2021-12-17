@@ -43,7 +43,7 @@ void send_status(void){
     printf("V:%f,", wheel[i].velocity);
     printf("P:%i,  ", wheel[i].pwm);
 //    printf("E:%i,%i;  ", gpio_get(wheel[i].encoderA_pin), gpio_get(wheel[i].encoderB_pin));
-    printf("")
+    printf("");
   }
 
   printf("\n");
