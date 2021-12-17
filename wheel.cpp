@@ -43,7 +43,7 @@ void WheelClass::reset(void){
   PWM_max = 1022;
   PWM_offset = 650;
   
-  V_max = 1700.0 / 50; // 34
+  V_max = 170.0 / 50; // 34
   A_max = V_max / 150.0; // 11.333
   D_max = V_max * 150.0 * 0.5; // 51.0
 

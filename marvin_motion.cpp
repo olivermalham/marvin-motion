@@ -41,6 +41,7 @@ void send_status(void){
     printf("Da:%f,", wheel[i].distance_actual);
     printf("Derr:%f,", wheel[i].distance_error);
     printf("V:%f,", wheel[i].velocity);
+    printf("Va:%f,", wheel[i].velocity_corrected);
     printf("P:%i,  ", wheel[i].pwm);
 //    printf("E:%i,%i;  ", gpio_get(wheel[i].encoderA_pin), gpio_get(wheel[i].encoderB_pin));
     printf("");
