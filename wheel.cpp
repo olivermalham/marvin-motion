@@ -5,9 +5,17 @@
 #include "wheel.h"
 
 WheelClass::WheelClass(void){
+<<<<<<< HEAD
   distance = 0;
   distance_target = 0;
   distance_calc = 0;
+=======
+  distance = 0.0;
+  distance_target = 0.0;
+  distance_actual = 0.0;
+  distance_error = 0.0;
+  distance_co = 0.001;
+>>>>>>> 33814dd670e87af19c84e76b389c7e18eb8775fe
   direction = 1;
   velocity = 0.0;
   pwm = 0;
@@ -30,13 +38,16 @@ void WheelClass::move(float distance_new, float scale){
 
   // If total distance is less than twice the distance required to ramp up to the maximum velocity, then 
   // we have a triangluar motion profile. Recalculate accordingly.
-  if(D_max > distance / 2){};
+  if(D_max > distance / 2){ /* TODO! */};
+
+  velocity = V_max;
   
 }
 
 // Perform an immediate stop of the motor
 void WheelClass::stop(void){
   velocity = 0.0;
+  velocity_corrected = 0.0;
   update_motor();
 }
 
@@ -44,7 +55,7 @@ void WheelClass::reset(void){
   PWM_max = 1022;
   PWM_offset = 650;
   
-  V_max = 1700.0 / 50; // 34
+  V_max = 250.0 / 50; // 34
   A_max = V_max / 150.0; // 11.333
   D_max = V_max * 150.0 * 0.5; // 51.0
 
@@ -53,7 +64,10 @@ void WheelClass::reset(void){
   velocity = 0.0;
   distance = 0.0;
   distance_target = 0.0;
-  distance_calc = 0.0;
+  distance_actual = 0.0;
+  distance_error = 0.0;
+  distance_co = 0.001;
+
   pwm = 0;
   encoderA_last = gpio_get(encoderA_pin);
 }
@@ -102,20 +116,20 @@ void WheelClass::encoder_tick(void){
   // Only trigger on a rising edge
   if(encoderA_current & !encoderA_last){
     if(encoderB_current){
-      distance--;
+      distance_actual--;
     } else {
-      distance++;
+      distance_actual++;
     }
   }
   encoderA_last = encoderA_current;
 }
 
 void WheelClass::update_distance(float delta){
-  distance += delta;
+  distance_actual += delta;
 }
 
 int WheelClass::servo_tick(void){
-  if(distance != distance_target)
+  if(distance_actual <= distance_target)
     trapezoid();
 //  if(distance_target > 2*D_max) return trapezoid();
 //  else return triangle();
@@ -126,19 +140,30 @@ int WheelClass::servo_tick(void){
 }
 
 void WheelClass::trapezoid(void){
-  if(distance < D_max){
+  if(distance_actual < D_max){
     // Ramp up speed to maximum
     velocity += A_max;
     if(velocity > V_max) velocity = V_max;
-  } else if(distance >= D_max && distance < distance_target - D_max) {
-    // Constance velocity
+
+    // Update calculated distance so we can determine error
+    distance += velocity;
+
+  } else if(distance_actual >= D_max && distance_actual < distance_target - D_max) {
+    // Constant velocity
+    distance += velocity;
   } else {
     // Ramp down
     velocity -= A_max;
-    if(velocity <= 0) velocity = 0;
+    if(velocity <= 0.0) velocity = 0.0;
+    distance += velocity;
   }
+<<<<<<< HEAD
   distance_calc += velocity; // This is how far we should have moved by now
   calculate_pwm(); // Calculate the PWM usng a PID controller
+=======
+  distance_error = distance_actual - distance;
+  velocity = (distance_error * distance_co); // Very simple proportional control algorithm
+>>>>>>> 33814dd670e87af19c84e76b389c7e18eb8775fe
   update_motor();
 }
 
@@ -146,10 +171,16 @@ void WheelClass::triangle(void){
   update_motor();
 }
 
+<<<<<<< HEAD
 void WheelClass::update_motor(void){
   // pwm = int(velocity * PWM_convert) + PWM_offset; // PWM value is now calculated by the PID controller
+=======
+void WheelClass::update_motor(){
+  pwm = int(velocity * PWM_convert) + PWM_offset;
+>>>>>>> 33814dd670e87af19c84e76b389c7e18eb8775fe
   if(velocity <= 0.0) pwm = 0;
   if(pwm > PWM_max) pwm = PWM_max;
+  if(pwm < 0) pwm = 0;
   
   if (direction > 0){
     pwm_set_chan_level(pwm_slice, PWM_CHAN_A, pwm);

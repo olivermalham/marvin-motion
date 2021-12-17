@@ -35,12 +35,13 @@ void send_status(void){
   printf("F%u;  ", frame_total);
 
   for(int i = 0; i < WHEEL_COUNT; i++){
-    printf("M%i,", i+1); 
-//    printf("T%f,", wheel[i].distance_target); 
-    printf("D%f,", wheel[i].distance); 
-//    printf("V%f,", wheel[i].velocity);
-    printf("P%i,  ", wheel[i].pwm);
-    printf("E:%i,%i;  ", gpio_get(wheel[i].encoderA_pin), gpio_get(wheel[i].encoderB_pin));
+    printf("M%i, ", i+1); 
+    printf("D:%f, ", wheel[i].distance);
+    printf("Da:%f, ", wheel[i].distance_actual);
+    printf("Derr:%f, ", wheel[i].distance_error);
+    printf("V:%f, ", wheel[i].velocity);
+    printf("Va:%f, ", wheel[i].velocity_corrected);
+    printf("P:%i  |  ", wheel[i].pwm);
   }
 
   printf("\n");
@@ -164,7 +165,7 @@ void loop() {
 
   if(frame_count >= 100) {
     seconds++;
-    //send_status();
+    send_status();
     frame_count = 0;
   }
 
@@ -177,16 +178,19 @@ int main(void){
   // Configure everything
   setup();
 
-  // wheel[0].move(100000.0, 1.0);
-  // wheel[1].move(100000.0, 1.0);
-  // wheel[2].move(100000.0, 1.0);
-  // wheel[3].move(100000.0, 1.0);
-  // wheel[4].move(100000.0, 1.0);
-  // wheel[5].move(100000.0, 1.0);
+  wheel[0].move(50000.0, 1.0);
+  wheel[1].move(50000.0, 1.0);
+  wheel[2].move(50000.0, 1.0);
+  wheel[3].move(50000.0, 1.0);
+  wheel[4].move(50000.0, 1.0);
+  wheel[5].move(50000.0, 1.0);
   
+  send_status();
+
   // Infinite loop
   while(true){
     loop();
+    //send_status();
   }
 
 }
