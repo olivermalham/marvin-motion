@@ -7,6 +7,9 @@
 WheelClass::WheelClass(void){
   distance = 0;
   distance_target = 0;
+  distance_actual = 0.0;
+  distance_error = 0.0;
+  distance_co = 0.02;
   direction = 1;
   velocity = 0.0;
   pwm = 0;
@@ -54,7 +57,7 @@ void WheelClass::reset(void){
   distance_target = 0.0;
   distance_actual = 0.0;
   distance_error = 0.0;
-  distance_co = 0.1;
+  distance_co = 0.02;
 
   pwm = 0;
   encoderA_last = gpio_get(encoderA_pin);
