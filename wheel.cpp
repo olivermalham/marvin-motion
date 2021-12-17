@@ -44,7 +44,7 @@ void WheelClass::stop(void){
 
 void WheelClass::reset(void){
   PWM_max = 1022;
-  PWM_offset = 400;
+  PWM_offset = 0;
   
   V_max = 250.0 / 50; // 34
   A_max = V_max / 150.0; // 11.333
