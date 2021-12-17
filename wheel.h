@@ -23,6 +23,9 @@ class WheelClass {
     int direction = 1;
     float distance = 0;
     float distance_target = 0;
+    float distance_actual = 0;
+    float distance_error = 0;
+    float distance_co = 0.2;
     
     // Encoder ticks recorded (not currently used in motion control)
     int distance_encoder = 0;
@@ -45,6 +48,6 @@ class WheelClass {
   private:
     void trapezoid(void);
     void triangle(void);
-    void update_motor(void);    
+    void update_motor(float velocity_corrected);    
 };
 #endif

@@ -164,7 +164,7 @@ void loop() {
 
   if(frame_count >= 100) {
     seconds++;
-    //send_status();
+    send_status();
     frame_count = 0;
   }
 
@@ -177,12 +177,12 @@ int main(void){
   // Configure everything
   setup();
 
-  wheel[0].move(100000.0, 1.0);
-  wheel[1].move(100000.0, 1.0);
-  wheel[2].move(100000.0, 1.0);
-  wheel[3].move(100000.0, 1.0);
-  wheel[4].move(100000.0, 1.0);
-  wheel[5].move(100000.0, 1.0);
+  wheel[0].move(50000.0, 1.0);
+  wheel[1].move(50000.0, 1.0);
+  wheel[2].move(50000.0, 1.0);
+  wheel[3].move(50000.0, 1.0);
+  wheel[4].move(50000.0, 1.0);
+  wheel[5].move(50000.0, 1.0);
   
   // Infinite loop
   while(true){
