@@ -185,9 +185,12 @@ int main(void){
   wheel[4].move(50000.0, 1.0);
   wheel[5].move(50000.0, 1.0);
   
+  send_status();
+
   // Infinite loop
   while(true){
-    loop();
+    //loop();
+    send_status();
   }
 
 }
