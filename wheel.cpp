@@ -138,7 +138,7 @@ void WheelClass::trapezoid(void){
   } else {
     // Ramp down
     velocity -= A_max;
-    if(velocity <= 0) velocity = 0;
+    if(velocity <= 0.0) velocity = 0.0;
     distance += velocity;
   }
   distance_error = distance - distance_actual;
@@ -154,6 +154,7 @@ void WheelClass::update_motor(float velocity_corrected){
   pwm = int(velocity_corrected * PWM_convert) + PWM_offset;
   if(velocity_corrected <= 0.0) pwm = 0;
   if(pwm > PWM_max) pwm = PWM_max;
+  if(pwm < 0) pwm = 0;
   
   if (direction > 0){
     pwm_set_chan_level(pwm_slice, PWM_CHAN_A, pwm);

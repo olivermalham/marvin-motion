@@ -37,10 +37,13 @@ void send_status(void){
   for(int i = 0; i < WHEEL_COUNT; i++){
     printf("M%i,", i+1); 
 //    printf("T%f,", wheel[i].distance_target); 
-    printf("D%f,", wheel[i].distance); 
-//    printf("V%f,", wheel[i].velocity);
-    printf("P%i,  ", wheel[i].pwm);
-    printf("E:%i,%i;  ", gpio_get(wheel[i].encoderA_pin), gpio_get(wheel[i].encoderB_pin));
+    printf("D:%f,", wheel[i].distance);
+    printf("Da:%f,", wheel[i].distance_actual);
+    printf("Derr:%f,", wheel[i].distance_error);
+    printf("V:%f,", wheel[i].velocity);
+    printf("P:%i,  ", wheel[i].pwm);
+//    printf("E:%i,%i;  ", gpio_get(wheel[i].encoderA_pin), gpio_get(wheel[i].encoderB_pin));
+    printf("")
   }
 
   printf("\n");
