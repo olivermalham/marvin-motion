@@ -5,17 +5,11 @@
 #include "wheel.h"
 
 WheelClass::WheelClass(void){
-<<<<<<< HEAD
-  distance = 0;
-  distance_target = 0;
-  distance_calc = 0;
-=======
   distance = 0.0;
   distance_target = 0.0;
   distance_actual = 0.0;
   distance_error = 0.0;
   distance_co = 0.001;
->>>>>>> 33814dd670e87af19c84e76b389c7e18eb8775fe
   direction = 1;
   velocity = 0.0;
   pwm = 0;
@@ -157,13 +151,8 @@ void WheelClass::trapezoid(void){
     if(velocity <= 0.0) velocity = 0.0;
     distance += velocity;
   }
-<<<<<<< HEAD
-  distance_calc += velocity; // This is how far we should have moved by now
-  calculate_pwm(); // Calculate the PWM usng a PID controller
-=======
   distance_error = distance_actual - distance;
   velocity = (distance_error * distance_co); // Very simple proportional control algorithm
->>>>>>> 33814dd670e87af19c84e76b389c7e18eb8775fe
   update_motor();
 }
 
@@ -171,13 +160,8 @@ void WheelClass::triangle(void){
   update_motor();
 }
 
-<<<<<<< HEAD
-void WheelClass::update_motor(void){
-  // pwm = int(velocity * PWM_convert) + PWM_offset; // PWM value is now calculated by the PID controller
-=======
 void WheelClass::update_motor(){
   pwm = int(velocity * PWM_convert) + PWM_offset;
->>>>>>> 33814dd670e87af19c84e76b389c7e18eb8775fe
   if(velocity <= 0.0) pwm = 0;
   if(pwm > PWM_max) pwm = PWM_max;
   if(pwm < 0) pwm = 0;
