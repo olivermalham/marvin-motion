@@ -4,6 +4,7 @@
 #include "hardware/gpio.h"
 #include "wheel.h"
 
+
 WheelClass::WheelClass(void){
   distance = 0.0;
   distance_target = 0.0;
@@ -130,7 +131,7 @@ int WheelClass::servo_tick(void){
 }
 
 void WheelClass::trapezoid(void){
-  if(distance_actual < D_max){
+  if(distance < D_max){
     // Ramp up speed to maximum
     velocity += A_max;
     if(velocity > V_max) velocity = V_max;
@@ -138,7 +139,7 @@ void WheelClass::trapezoid(void){
     // Update calculated distance so we can determine error
     distance += velocity;
 
-  } else if(distance_actual >= D_max && distance_actual < distance_target - D_max) {
+  } else if(distance >= D_max && distance < distance_target - D_max) {
     // Constant velocity
     distance += velocity;
   } else {
@@ -147,8 +148,11 @@ void WheelClass::trapezoid(void){
     if(velocity <= 0.0) velocity = 0.0;
     distance += velocity;
   }
-  distance_error = distance_actual - distance;
-  velocity = (distance_error * distance_co); // Very simple proportional control algorithm
+
+  velocity_measured = distance - distance_last;
+  distance_last = distance;
+  velocity = velocity_measured - velocity;
+  //velocity = (distance_error * distance_co); // Very simple proportional control algorithm
   update_motor();
 }
 
