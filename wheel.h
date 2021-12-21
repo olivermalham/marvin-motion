@@ -21,9 +21,10 @@ class WheelClass {
     unsigned int encoderB_pin;
 
     int direction = 1;
-    float distance = 0;
-    float distance_target = 0;
-    
+    float distance = 0.0;
+    float distance_target = 0.0;
+    float distance_last = 0.0;
+
     // Encoder ticks recorded (not currently used in motion control)
     int distance_encoder = 0;
         
