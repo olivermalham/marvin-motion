@@ -7,11 +7,9 @@
 WheelClass::WheelClass(void){
   distance = 0.0;
   distance_target = 0.0;
-  distance_actual = 0.0;
-  distance_error = 0.0;
-  distance_co = 0.001;
   direction = 1;
   velocity = 0.0;
+  velocity_coef = 0.2;
   pwm = 0;
   encoderA_last = 0;
   encoderB_last = 0;
@@ -55,11 +53,9 @@ void WheelClass::reset(void){
   PWM_convert = float(PWM_max - PWM_offset) / V_max;
 
   velocity = 0.0;
+  velocity_coef = 0.2;
   distance = 0.0;
   distance_target = 0.0;
-  distance_actual = 0.0;
-  distance_error = 0.0;
-  distance_co = 0.001;
 
   pwm = 0;
   encoderA_last = gpio_get(encoderA_pin);
@@ -123,33 +119,46 @@ void WheelClass::update_distance(float delta){
 
 int WheelClass::servo_tick(void){
   if(distance_actual <= distance_target)
-    trapezoid();
+    trapezoid_pid();
 //  if(distance_target > 2*D_max) return trapezoid();
 //  else return triangle();
   return 0;
 }
 
 void WheelClass::trapezoid(void){
-  if(distance_actual < D_max){
+  if(distance < D_max){
     // Ramp up speed to maximum
     velocity += A_max;
     if(velocity > V_max) velocity = V_max;
-
-    // Update calculated distance so we can determine error
-    distance += velocity;
-
-  } else if(distance_actual >= D_max && distance_actual < distance_target - D_max) {
+  } else if(distance >= D_max && distance < distance_target - D_max) {
     // Constant velocity
-    distance += velocity;
   } else {
     // Ramp down
     velocity -= A_max;
     if(velocity <= 0.0) velocity = 0.0;
-    distance += velocity;
   }
-  distance_error = distance_actual - distance;
-  velocity = (distance_error * distance_co); // Very simple proportional control algorithm
   update_motor();
+}
+
+void WheelClass::trapezoid_pid(void){
+    if(distance < D_max){
+        // Ramp up speed to maximum
+        velocity += A_max;
+        if(velocity > V_max) velocity = V_max;
+    } else if(distance >= D_max && distance < distance_target - D_max) {
+        // Constant speed
+    } else {
+        // Ramp down
+        velocity -= A_max;
+        if(velocity <= 0.0) velocity = 0.0;
+        distance += velocity;
+    }
+    // Calculate corrected velocity
+    float velocity_actual = distance - distance_last;
+    float velocity_error = velocity - velocity_actual;
+    float velocity_corrected = velocity - (velocity_error * velocity_coef));
+    velocity = velocity_corrected;
+    update_motor();
 }
 
 void WheelClass::triangle(void){
