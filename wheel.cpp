@@ -39,24 +39,26 @@ void WheelClass::move(float distance, float scale){
 // Perform an immediate stop of the motor
 void WheelClass::stop(void){
   velocity = 0.0;
-  update_motor();
+  update_motor(0.0);
 }
 
 void WheelClass::reset(void){
-  PWM_max = 1022;
-  PWM_offset = 100; //650;
+  PWM_max = 900; //1022;
+  PWM_offset = 0;
   
-  V_max = 20.0; //250.0 / 50; // 34
-  A_max = V_max / 150.0; // 11.333
-  D_max = V_max * 150.0 * 0.5; // 51.0
+  V_max = 15.0; //250.0 / 50; // 34
+  A_max = V_max / 30.0; // 11.333
+  D_max = V_max * A_max * 0.5; // (A_max = 150)
 
-  PWM_convert = 42.0; //float(PWM_max - PWM_offset) / V_max;
+  PWM_convert = float(PWM_max - PWM_offset) / V_max;
 
   velocity = 0.0;
-  velocity_coef = 0.01;
+  velocity_av = 0.0;
+  velocity_coef = 0.3;
   distance = 0.0;
   distance_target = 0.0;
   distance_last = 0.0;
+  frames = 1;
 
   pwm = 0;
   encoderA_last = gpio_get(encoderA_pin);
@@ -138,12 +140,17 @@ void WheelClass::trapezoid(void){
     velocity -= A_max;
     if(velocity <= 0.0) velocity = 0.0;
   }
-  update_motor();
+  update_motor(velocity);
 }
 
 void WheelClass::trapezoid_pid(void){
-  if(distance == distance_last){
-    PWM_offset += 10;
+ // Calculate corrected velocity
+ float velocity_actual = distance - distance_last;
+ float velocity_error = velocity - velocity_actual;
+ float velocity_corrected = velocity_average(velocity_actual) + (velocity_error * velocity_coef);
+
+ if(distance == distance_last){
+        PWM_offset += 10;
   } else {
     if(distance < D_max){
         // Ramp up speed to maximum
@@ -156,25 +163,32 @@ void WheelClass::trapezoid_pid(void){
         velocity -= A_max;
         if(velocity <= 0.0) velocity = 0.0;
     }
-    // Calculate corrected velocity
-    float velocity_actual = distance - distance_last;
-    float velocity_error = velocity - velocity_actual;
-    float velocity_corrected = velocity + (velocity_error * velocity_coef);
     //velocity = velocity_corrected;
-    printf("PID: V: %f;  Va:%f; Verr: %f; Vc: %f; Dl: %i; D: %i; P:%i; Poff: %i\n", velocity, velocity_actual, velocity_error, velocity_corrected, int(distance_last), int(distance), (int(velocity*PWM_convert)+PWM_offset), PWM_offset);
+    printf("PID: V: %f;  Va: %f; Verr: %f; Vc: %f; Dl: %i; D: %i; P:%i; Poff: %i; Dmax: %f\n", velocity, velocity_actual, velocity_error, velocity_corrected, int(distance_last), int(distance), (int(velocity_corrected*PWM_convert)+PWM_offset), PWM_offset, D_max);
   }
-    update_motor();
+    update_motor(velocity_corrected);
     distance_last = distance;
 }
 
-void WheelClass::triangle(void){
-  update_motor();
+// Cumulative moving average of velocity
+float WheelClass::velocity_average(float new_velocity){
+  float average = (new_velocity + frames*velocity_av)/(frames + 1);
+  velocity_av = average;
+  frames++;
+  return(average);
 }
 
-void WheelClass::update_motor(){
-  pwm = int(velocity * PWM_convert) + PWM_offset;
-  if(velocity <= 0.0) pwm = 0;
-  if(pwm > PWM_max) pwm = PWM_max;
+void WheelClass::triangle(void){
+//  update_motor();
+}
+
+void WheelClass::update_motor(float v){
+  float PWM_convert = float(PWM_max - PWM_offset) / V_max;
+  pwm = int(v * PWM_convert) + PWM_offset;
+  printf("PWM: %i\n", pwm);
+  if(v <= 0.0) pwm = 0;
+//  if(pwm > PWM_max) pwm = PWM_max;
+  if(pwm > 1022) pwm = PWM_max;
   if(pwm < 0) pwm = 0;
   
   if (direction > 0){

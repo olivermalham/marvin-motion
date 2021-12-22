@@ -11,7 +11,7 @@
 // Serial comms speed
 #define SERIAL_SPEED 115200
 
-#define WHEEL_COUNT 6
+#define WHEEL_COUNT 1
 
 // Milliseconds per servo frame
 #define SERVO_FRAME 20
@@ -73,7 +73,7 @@ void setup() {
   // Initialise all the motor classes
   wheel[0].set_pins(M1A, M1B, E1A, E1B);
   wheel[0].reset();
-  
+/*  
   wheel[1].set_pins(M2A, M2B, E2A, E2B);
   wheel[1].reset();
   
@@ -88,7 +88,7 @@ void setup() {
   
   wheel[5].set_pins(M6A, M6B, E6A, E6B);
   wheel[5].reset();
-
+*/
   milliseconds = to_ms_since_boot(get_absolute_time());
 }
 
@@ -175,13 +175,13 @@ int main(void){
   // Configure everything
   setup();
 
-  wheel[0].move(50000.0, 1.0);
-  wheel[1].move(50000.0, 1.0);
+  wheel[0].move(15000.0, 1.0);
+ /* wheel[1].move(50000.0, 1.0);
   wheel[2].move(50000.0, 1.0);
   wheel[3].move(50000.0, 1.0);
   wheel[4].move(50000.0, 1.0);
   wheel[5].move(50000.0, 1.0);
-  
+  */
   send_status();
 
   // Infinite loop

@@ -27,8 +27,10 @@ class WheelClass {
 
     // Encoder ticks recorded (not currently used in motion control)
     int distance_encoder = 0;
+    int frames = 1;
         
     float velocity = 0.0;
+    float velocity_av = 0.0;
     float velocity_coef = 0.2;
     int pwm = 0;
 
@@ -48,6 +50,7 @@ class WheelClass {
     void trapezoid(void);
     void trapezoid_pid(void);
     void triangle(void);
-    void update_motor(void);    
+    void update_motor(float);
+    float velocity_average(float);
 };
 #endif
