@@ -43,14 +43,14 @@ class WheelClass {
     void reset(void);
     void set_pins(int outA, int outB, int encoderA, int encoderB);
     void update_distance(float delta);
-    int servo_tick(void);
+    int servo_tick(int);
     void encoder_tick(void);
 
   private:
     void trapezoid(void);
     void trapezoid_pid(void);
     void triangle(void);
-    void update_motor(float);
+    void update_motor(void);
     float velocity_average(float);
 };
 #endif

@@ -39,16 +39,16 @@ void WheelClass::move(float distance, float scale){
 // Perform an immediate stop of the motor
 void WheelClass::stop(void){
   velocity = 0.0;
-  update_motor(0.0);
+  //update_motor(0.0);
 }
 
 void WheelClass::reset(void){
-  PWM_max = 900; //1022;
-  PWM_offset = 0;
+  PWM_max = 1000; //1022;
+  PWM_offset = 400;
   
-  V_max = 15.0; //250.0 / 50; // 34
-  A_max = V_max / 30.0; // 11.333
-  D_max = V_max * A_max * 0.5; // (A_max = 150)
+  V_max = 20.0; //250.0 / 50; // 34
+  A_max = V_max / 150.0; // 11.333
+  D_max = V_max * 150 * 0.5; // (A_max = 150)
 
   PWM_convert = float(PWM_max - PWM_offset) / V_max;
 
@@ -120,11 +120,16 @@ void WheelClass::update_distance(float delta){
   distance += delta;
 }
 
-int WheelClass::servo_tick(void){
-  if(distance <= distance_target)
+int WheelClass::servo_tick(int num){
+  if(distance <= distance_target) {
+    printf("M%i - ", num+1);
     trapezoid_pid();
 //  if(distance_target > 2*D_max) return trapezoid();
 //  else return triangle();
+  } else {
+    pwm = 0;
+    velocity = 0;
+  }
   return 0;
 }
 
@@ -140,7 +145,7 @@ void WheelClass::trapezoid(void){
     velocity -= A_max;
     if(velocity <= 0.0) velocity = 0.0;
   }
-  update_motor(velocity);
+  update_motor();
 }
 
 void WheelClass::trapezoid_pid(void){
@@ -163,10 +168,10 @@ void WheelClass::trapezoid_pid(void){
     float velocity_error = velocity - velocity_actual;
 
     // TODO: This will oscillate around the set point!
-    if(velocity_error < 0) pwm += 10;
+    if(velocity_error > 0) pwm += 10;
     else pwm -= 10;
 
-    printf("PID: V: %f;  Va: %f; Verr: %f; Vc: %f; Dl: %i; D: %i; P:%i; Poff: %i; Dmax: %f\n", velocity, velocity_actual, velocity_error, velocity_corrected, int(distance_last), int(distance), (int(velocity_corrected*PWM_convert)+PWM_offset), PWM_offset, D_max);
+    printf("PID: V: %f;  Va: %f; Verr: %f; A: %f, Dl: %i; D: %i; P:%i; Poff: %i; Dmax: %f\n", velocity, velocity_actual, velocity_error, A_max, int(distance_last), int(distance), pwm, PWM_offset, D_max);
     update_motor();
     distance_last = distance;
 }
@@ -184,7 +189,7 @@ void WheelClass::triangle(void){
 }
 
 void WheelClass::update_motor(void){
-  printf("PWM: %i\n", pwm);
+  //printf("PWM: %i\n", pwm);
   if(pwm > 1022) pwm = PWM_max;
   if(pwm < 0) pwm = 0;
   
