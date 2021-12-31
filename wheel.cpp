@@ -46,7 +46,7 @@ void WheelClass::reset(void){
   PWM_max = 1000; //1022;
   PWM_offset = 400;
   
-  V_max = 20.0; //250.0 / 50; // 34
+  V_max = 13.0; //250.0 / 50; // 34
   A_max = V_max / 150.0; // 11.333
   D_max = V_max * 150 * 0.5; // (A_max = 150)
 
@@ -103,7 +103,7 @@ void WheelClass::encoder_tick(void){
   bool encoderB_current = gpio_get(encoderB_pin);
   
   // If the motor isn't powered, ignore the encoder
-  if(!pwm) return;
+  if(pwm <= 0) return;
 
   // Only trigger on a rising edge
   if(encoderA_current & !encoderA_last){
@@ -129,6 +129,8 @@ int WheelClass::servo_tick(int num){
   } else {
     pwm = 0;
     velocity = 0;
+    update_motor();
+//    printf("M%i - FINISHED!\n", num+1);
   }
   return 0;
 }

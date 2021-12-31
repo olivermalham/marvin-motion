@@ -108,7 +108,7 @@ void loop() {
   }
 
   // Command despatcher. 
-  if(!in_motion) {
+/*  if(!in_motion) {
     currentCommand = command_next();
     
     switch(currentCommand->command){
@@ -124,7 +124,7 @@ void loop() {
         break;
     }
   }
-  
+*/
   // 20ms / 50Hz servo frame, so wait whatever time we have left since we started this loop
   // Use this while loop for handling everything that needs to process more quickly than the servo loop
   while((to_ms_since_boot(get_absolute_time()) - frame_start) < SERVO_FRAME){
@@ -133,7 +133,7 @@ void loop() {
     for(int i = 0; i < WHEEL_COUNT; i++){
       wheel[i].encoder_tick();
     }
-
+/*
     if(packet_read()){
       if(packet_parse() == HARDSTOP){
         // HARDSTOP! Command queue will have already been dumped, so kill all motors
@@ -143,7 +143,7 @@ void loop() {
       };
       // Interactive mode, so display prompt
       if(Echo) printf("Command > ");
-    }
+    } */
   };
 
   // Simulate movement. Should be driven by encoder output
