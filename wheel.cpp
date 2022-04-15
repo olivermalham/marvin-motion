@@ -123,9 +123,9 @@ void WheelClass::update_distance(float delta){
 int WheelClass::servo_tick(int num){
   if(distance <= distance_target) {
     printf("M%i - ", num+1);
-    trapezoid_pid();
-//  if(distance_target > 2*D_max) return trapezoid();
-//  else return triangle();
+
+    if(distance_target > 2*D_max) return trapezoid_pid();
+    else return triangle();
   } else {
     pwm = 0;
     velocity = 0;
@@ -136,22 +136,6 @@ int WheelClass::servo_tick(int num){
 }
 
 void WheelClass::trapezoid(void){
-  if(distance < D_max){
-    // Ramp up speed to maximum
-    velocity += A_max;
-    if(velocity > V_max) velocity = V_max;
-  } else if(distance >= D_max && distance < distance_target - D_max) {
-    // Constant velocity
-  } else {
-    // Ramp down
-    velocity -= A_max;
-    if(velocity <= 0.0) velocity = 0.0;
-  }
-  update_motor();
-}
-
-void WheelClass::trapezoid_pid(void){
-    /* Motion control method using feed back from the motor encoder to determine */
     // Calculate the target velocity
     if(distance < D_max){
         // Ramp up speed to maximum
@@ -165,15 +149,6 @@ void WheelClass::trapezoid_pid(void){
         if(velocity <= 0.0) velocity = 0.0;
     }
 
-    // Calculate velocity error
-    float velocity_actual = distance - distance_last;
-    float velocity_error = velocity - velocity_actual;
-
-    // TODO: This will oscillate around the set point!
-    if(velocity_error > 0) pwm += 10;
-    else pwm -= 10;
-
-    printf("PID: V: %f;  Va: %f; Verr: %f; A: %f, Dl: %i; D: %i; P:%i; Poff: %i; Dmax: %f\n", velocity, velocity_actual, velocity_error, A_max, int(distance_last), int(distance), pwm, PWM_offset, D_max);
     update_motor();
     distance_last = distance;
 }
@@ -187,11 +162,35 @@ float WheelClass::velocity_average(float new_velocity){
 }
 
 void WheelClass::triangle(void){
-//  update_motor();
+      // Calculate the target velocity
+      if(distance < distance_target/2){
+          // Ramp up speed to maximum
+          velocity += A_max;
+          if(velocity > V_max) velocity = V_max;
+      } else {
+          // Ramp down
+          velocity -= A_max;
+          if(velocity <= 0.0) velocity = 0.0;
+      }
+
+      update_motor();
+      distance_last = distance;
 }
 
+// Update motor contains proportional control code
 void WheelClass::update_motor(void){
-  //printf("PWM: %i\n", pwm);
+
+  // Calculate velocity error
+  float velocity_actual = distance - distance_last;
+  float velocity_error = velocity - velocity_actual;
+
+  // TODO: This will oscillate around the set point!
+  if(velocity_error > 0) pwm += 10;
+  else pwm -= 10;
+
+  printf("PID: V: %f;  Va: %f; Verr: %f; A: %f, Dl: %i; D: %i; P:%i; Poff: %i; Dmax: %f\n",
+        velocity, velocity_actual, velocity_error, A_max, int(distance_last), int(distance), pwm, PWM_offset, D_max);
+
   if(pwm > 1022) pwm = PWM_max;
   if(pwm < 0) pwm = 0;
   
