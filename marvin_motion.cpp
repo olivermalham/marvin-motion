@@ -100,22 +100,25 @@ void loop() {
   }
 
   // Command dispatcher.
-  if(!in_motion) {
-    currentCommand = command_next();
-
-    switch(currentCommand->command){
-
-      case(MOVE):
-        for(int i = 0; i < WHEEL_COUNT; i++)
-          wheel[i].move(currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
-        break;
-
-      case(STOP):
-        for(int i = 0; i < WHEEL_COUNT; i++)
-          wheel[i].stop();
-        break;
-    }
-  }
+//  if(!in_motion) {
+//    currentCommand = command_next();
+//
+//    if(currentCommand != NULL){
+//
+//        switch(currentCommand->command){
+//
+//          case(MOVE):
+//            for(int i = 0; i < WHEEL_COUNT; i++)
+//              wheel[i].move(currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
+//            break;
+//
+//          case(STOP):
+//            for(int i = 0; i < WHEEL_COUNT; i++)
+//              wheel[i].stop();
+//            break;
+//        }
+//    }
+//  }
 
   // 20ms / 50Hz servo frame, so wait whatever time we have left since we started this loop
   // Use this while loop for handling everything that needs to process more quickly than the servo loop
@@ -126,16 +129,16 @@ void loop() {
       wheel[i].encoder_tick();
     }
 
-    if(packet_read()){
-      if(packet_parse() == HARDSTOP){
-        // HARDSTOP! Command queue will have already been dumped, so kill all motors
-        printf("HARDSTOP!!!\n");
-        for(int i = 0; i < WHEEL_COUNT; i++)
-          wheel[i].stop();
-      };
-      // Interactive mode, so display prompt
-      if(Echo) printf("Command > ");
-    }
+//    if(packet_read()){
+//      if(packet_parse() == HARDSTOP){
+//        // HARDSTOP! Command queue will have already been dumped, so kill all motors
+//        printf("HARDSTOP!!!\n");
+//        for(int i = 0; i < WHEEL_COUNT; i++)
+//          wheel[i].stop();
+//      };
+//      // Interactive mode, so display prompt
+//      if(Echo) printf("Command > ");
+//    }
   };
 
   // Anything that needs to runs at base 50Hz should go below here

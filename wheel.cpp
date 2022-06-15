@@ -198,7 +198,8 @@ void WheelClass::update_motor(void){
 
   // TODO: This will oscillate around the set point!
   if(velocity_error > 0) pwm += 10;
-  else pwm -= 10;
+  else if(velocity_error < 0) pwm -= 10;
+  else pwm = 0;
 
   printf("PID: V: %f;  Va: %f; Verr: %f; A: %f, Dl: %i; D: %i; P:%i; Poff: %i; Dmax: %f\n",
         velocity, velocity_actual, velocity_error, A_max, int(distance_last), int(distance), pwm, PWM_offset, D_max);
