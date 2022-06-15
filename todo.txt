@@ -12,3 +12,5 @@ Question: how can I implement this in a way that keeps the code well structured?
 
 
 
+MOVE:M1,D1234.5,V128,M2,D1234.5,V128,M3,D1234.5,V128,M4,D1234.5,V128,M5,D1234.5,V128,M6,D1234.5,V128;
+

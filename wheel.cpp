@@ -134,7 +134,7 @@ void WheelClass::update_distance(float delta){
 
 int WheelClass::servo_tick(int num){
   if(distance <= distance_target) {
-    printf("M%i - ", num+1);
+//    printf("M%i - ", num+1);
 
     if(distance_target > 2*D_max) trapezoid();
     else triangle();
@@ -201,8 +201,8 @@ void WheelClass::update_motor(void){
   else if(velocity_error < 0) pwm -= 10;
   else pwm = 0;
 
-  printf("PID: V: %f;  Va: %f; Verr: %f; A: %f, Dl: %i; D: %i; P:%i; Poff: %i; Dmax: %f\n",
-        velocity, velocity_actual, velocity_error, A_max, int(distance_last), int(distance), pwm, PWM_offset, D_max);
+//  printf("PID: V: %f;  Va: %f; Verr: %f; A: %f, Dl: %i; D: %i; P:%i; Poff: %i; Dmax: %f\n",
+//        velocity, velocity_actual, velocity_error, A_max, int(distance_last), int(distance), pwm, PWM_offset, D_max);
 
   if(pwm > 1022) pwm = PWM_max;
   if(pwm < 0) pwm = 0;

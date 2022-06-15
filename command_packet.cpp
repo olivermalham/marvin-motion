@@ -193,6 +193,7 @@ int packet_parse(){
   // MOVE:D<motor 1 distance>,V<motor 1 velocity>....D<motor 6 distance>,V<motor 6 velocity>;
   // e.g.
   // MOVE:D0.0,V0.0,D1.0,V1.0,D2.0,V2.0,D3.0,V3.0,D4.0,V4.0,D5.0,V5.0
+  // MOVE:D10000.0,V1.0,D10000.0,V1.0,D10000.0,V1.0,D10000.0,V1.0,D10000.0,V1.0,D10000.0,V1.0
   //
   // If the command is malformed, return BAD_COMMAND without incrementing the buffer tail,
   // so the command will be over-written and ignored.

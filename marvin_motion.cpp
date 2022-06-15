@@ -94,10 +94,10 @@ void loop() {
   bool status_request = false;
   
   // Update all wheel motion controllers
-//  for(int i = 0; i < WHEEL_COUNT; i++){
-//    wheel[i].servo_tick(i);
-//    if(wheel[i].velocity > 0.0) in_motion = true;
-//  }
+  for(int i = 0; i < WHEEL_COUNT; i++){
+    wheel[i].servo_tick(i);
+    if(wheel[i].velocity > 0.0) in_motion = true;
+  }
 
   // Command dispatcher.
   if(!in_motion) {
@@ -149,12 +149,12 @@ void loop() {
   if(frame_count > 50) {
     gpio_put(LED_PIN, 0);
   }
-//
-//  if(frame_count >= 100) {
-//    seconds++;
+
+  if(frame_count >= 100) {
+    seconds++;
 //    send_status();
-//    frame_count = 0;
-//  }
+    frame_count = 0;
+  }
 
   ++frame_count;
   ++frame_total;
