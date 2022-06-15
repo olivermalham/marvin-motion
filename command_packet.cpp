@@ -212,7 +212,7 @@ int packet_parse(){
     
     if(args != 12){
       printf("packet_parse: BAD_COMMAND\n");
-      //packet_buffer_clear();
+      packet_buffer_clear();
       return BAD_COMMAND;
     } else {
       command_advance();

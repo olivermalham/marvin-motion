@@ -122,7 +122,7 @@ void loop() {
               wheel[i].stop();
             break;
         }
-      //command_clear(currentCommand);
+      command_clear(currentCommand);
     }
   }
 
