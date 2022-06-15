@@ -124,7 +124,7 @@ int WheelClass::servo_tick(int num){
   if(distance <= distance_target) {
     printf("M%i - ", num+1);
 
-    if(distance_target > 2*D_max) trapezoid_pid();
+    if(distance_target > 2*D_max) trapezoid();
     else triangle();
   } else {
     pwm = 0;
