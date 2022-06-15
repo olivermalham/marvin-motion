@@ -97,7 +97,7 @@ void WheelClass::set_pins(int outA, int outB, int encoderA, int encoderB){
   gpio_set_dir(encoderB, GPIO_IN);
 }
 
-// Polled by the main loop to catch encoder ticks (interupt driven would be better, but couldn't make it work)
+// Polled by the main loop to catch encoder ticks (interrupt driven would be better, but couldn't make it work)
 void WheelClass::encoder_tick(void){
   bool encoderA_current = gpio_get(encoderA_pin);
   bool encoderB_current = gpio_get(encoderB_pin);
@@ -124,8 +124,8 @@ int WheelClass::servo_tick(int num){
   if(distance <= distance_target) {
     printf("M%i - ", num+1);
 
-    if(distance_target > 2*D_max) return trapezoid_pid();
-    else return triangle();
+    if(distance_target > 2*D_max) trapezoid_pid();
+    else triangle();
   } else {
     pwm = 0;
     velocity = 0;

@@ -99,7 +99,7 @@ void loop() {
     if(wheel[i].velocity > 0.0) in_motion = true;
   }
 
-  // Command despatcher. 
+  // Command dispatcher.
   if(!in_motion) {
     currentCommand = command_next();
 
