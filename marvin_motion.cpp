@@ -108,9 +108,10 @@ void loop() {
         switch(currentCommand->command){
 
           case(MOVE):
-            for(int i = 0; i < WHEEL_COUNT; i++)
+            for(int i = 0; i < WHEEL_COUNT; i++){
                 printf("Wheel %i: D%f V%f\n", currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
               wheel[i].move(currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
+            };
             printf("Trying to move!\n");
             break;
 
