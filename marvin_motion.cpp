@@ -177,7 +177,7 @@ int main(void){
   // Infinite loop
   while(true){
     loop();
-    send_status();
+//    send_status();
   }
 
 }
