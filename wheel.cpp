@@ -8,44 +8,33 @@
 WheelClass::WheelClass(void){
   distance = 0.0;
   distance_target = 0.0;
+  distance_last = 0.0;
   direction = 1;
   velocity = 0.0;
-  velocity_coef = 0.01;
+  velocity_av = 0.0;
+  velocity_coef = 0.3;
+  frames = 1;
   pwm = 0;
   encoderA_last = 0;
   encoderB_last = 0;
   outputA_pin = 0;
   outputB_pin = 0;
   pwm_slice = 0;
-}
 
-void WheelClass::move(float distance, float scale){
-  distance_target = distance;
-  D_max = D_max * scale;
-  V_max = V_max * scale;
-  A_max = A_max * scale;
+  PWM_max = 1000; //1022;
+  PWM_offset = 400;
 
-  if(distance < 0) direction = -1;
-  else direction = 1;
+  V_max = 13.0; //250.0 / 50; // 34
+  A_max = V_max / 150.0; // 11.333
+  D_max = V_max * 150 * 0.5; // (A_max = 150)
 
-  // If total distance is less than twice the distance required to ramp up to the maximum velocity, then 
-  // we have a triangluar motion profile. Recalculate accordingly.
-  if(D_max > distance / 2){ /* TODO! */};
-
-  velocity = V_max;
-  
-}
-
-// Perform an immediate stop of the motor
-void WheelClass::stop(void){
-  velocity = 0.0;
-  //update_motor(0.0);
+  PWM_convert = float(PWM_max - PWM_offset) / V_max;
 }
 
 void WheelClass::reset(void){
   PWM_max = 1000; //1022;
   PWM_offset = 400;
-  
+
   V_max = 13.0; //250.0 / 50; // 34
   A_max = V_max / 150.0; // 11.333
   D_max = V_max * 150 * 0.5; // (A_max = 150)
@@ -62,6 +51,29 @@ void WheelClass::reset(void){
 
   pwm = 0;
   encoderA_last = gpio_get(encoderA_pin);
+}
+
+void WheelClass::move(float distance, float scale){
+  distance_target = distance;
+  D_max = D_max * scale;
+  V_max = V_max * scale;
+  A_max = A_max * scale;
+
+  if(distance < 0) direction = -1;
+  else direction = 1;
+
+  // If total distance is less than twice the distance required to ramp up to the maximum velocity, then 
+  // we have a triangular motion profile. Recalculate accordingly.
+  if(D_max > distance / 2){ /* TODO! */};
+
+  velocity = V_max;
+  
+}
+
+// Perform an immediate stop of the motor
+void WheelClass::stop(void){
+  velocity = 0.0;
+  //update_motor(0.0);
 }
 
 void WheelClass::set_pins(int outA, int outB, int encoderA, int encoderB){
