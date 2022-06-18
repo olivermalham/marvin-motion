@@ -101,6 +101,7 @@ void loop() {
 
   // Command dispatcher.
   if(!in_motion) {
+    command_buffer_print();
     currentCommand = command_next();
 
     if(currentCommand != NULL){
@@ -108,7 +109,7 @@ void loop() {
         switch(currentCommand->command){
 
           case(MOVE):
-            printf("Packet processed %u", (unsigned int)currentCommand);
+            printf("Packet processed %u\n", (unsigned int)currentCommand);
             for(int i = 0; i < WHEEL_COUNT; i++){
                 printf("Wheel %i: D%f V%f\n", i,
                     currentCommand->motor[i].distance,

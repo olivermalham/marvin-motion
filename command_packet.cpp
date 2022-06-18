@@ -215,7 +215,7 @@ int packet_parse(){
       packet_buffer_clear();
       return BAD_COMMAND;
     } else {
-        printf("Packet received %u", (unsigned int)newPacket);
+        printf("Packet received %u\n", (unsigned int)newPacket);
         for(int i = 0; i < 6; i++){
             printf("Wheel %i: D%f V%f\n", i,
             newPacket->motor[i].distance,
