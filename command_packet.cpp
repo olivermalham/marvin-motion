@@ -217,8 +217,8 @@ int packet_parse(){
     } else {
         for(int i = 0; i < 6; i++){
             printf("Wheel %i: D%f V%f\n", i,
-            currentCommand->motor[i].distance,
-            currentCommand->motor[i].velocity);
+            newPacket->motor[i].distance,
+            newPacket->motor[i].velocity);
         };
       command_advance();
       return MOVE;
