@@ -215,7 +215,7 @@ int packet_parse(){
       packet_buffer_clear();
       return BAD_COMMAND;
     } else {
-        for(int i = 0; i < WHEEL_COUNT; i++){
+        for(int i = 0; i < 6; i++){
             printf("Wheel %i: D%f V%f\n", i,
             currentCommand->motor[i].distance,
             currentCommand->motor[i].velocity);
