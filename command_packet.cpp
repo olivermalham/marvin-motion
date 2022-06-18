@@ -276,8 +276,9 @@ void command_buffer_print(void){
   }
 
   printf("\nCommand Buffer:\n");
+  printf("Head: %i; Tail: %i\n", CommandBufferHead, CommandBufferTail);
   while(i != CommandBufferTail){
-    // print
+    if(!CommandBuffer[i].command) continue;
     printf("\tCommand %i:\n", i);
     switch(CommandBuffer[i].command){
       case STOP:
