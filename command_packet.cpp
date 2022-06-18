@@ -253,10 +253,12 @@ CommandPacket* command_next(void){
   Returns NULL if there are no more commands in the buffer.
   */
   if(CommandBufferHead == CommandBufferTail) return NULL;
+  CommandPacket *result = &CommandBuffer[CommandBufferHead];
+
   CommandBufferHead++;
   if(CommandBufferHead > COMMAND_BUFFER_LENGTH) CommandBufferHead = 0;
 
-  return &CommandBuffer[CommandBufferHead];
+  return result;
 }
 
 
