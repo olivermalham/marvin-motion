@@ -101,7 +101,7 @@ void loop() {
 
   // Command dispatcher.
   if(!in_motion) {
-    command_buffer_print();
+    //command_buffer_print();
     currentCommand = command_next();
 
     if(currentCommand != NULL){
