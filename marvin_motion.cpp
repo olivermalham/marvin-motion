@@ -103,6 +103,7 @@ void loop() {
   if(!in_motion) {
     //command_buffer_print();
     currentCommand = command_next();
+    printf("currentCommand: %u\n", (unsigned int)currentCommand);
 
     if(currentCommand != NULL){
 
