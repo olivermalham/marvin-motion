@@ -272,14 +272,18 @@ void command_buffer_print(void){
   unsigned int i = CommandBufferHead;
 
   if(CommandBufferHead == CommandBufferTail){
-    printf("\nCommand Buffer Empty\n");
+    //printf("\nCommand Buffer Empty\n");
     return;
   }
 
   printf("\nCommand Buffer:\n");
   printf("Head: %i; Tail: %i\n", CommandBufferHead, CommandBufferTail);
   while(i != CommandBufferTail){
-    if(!CommandBuffer[i].command) continue;
+
+    if(!CommandBuffer[i].command) {
+        i++; continue;
+    }
+
     printf("\tCommand %i:\n", i);
     switch(CommandBuffer[i].command){
       case STOP:
