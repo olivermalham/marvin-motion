@@ -279,10 +279,10 @@ void command_buffer_print(void){
   printf("\nCommand Buffer:\n");
   printf("Head: %i; Tail: %i\n", CommandBufferHead, CommandBufferTail);
   while(i <= CommandBufferTail){
-
-    if(!CommandBuffer[i].command) {
-        i++; continue;
-    }
+//
+//    if(!CommandBuffer[i].command) {
+//        i++; continue;
+//    }
 
     printf("\tCommand %i:\n", i);
     switch(CommandBuffer[i].command){
