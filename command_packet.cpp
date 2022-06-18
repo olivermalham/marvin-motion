@@ -103,6 +103,7 @@ int packet_parse(){
 
   // Next, check for buffer overflow (including buffer wrap case).
   // Drop the packet on overflow.
+  // FIXME?
   if((CommandBufferTail == (CommandBufferHead - 1)) ||
      (CommandBufferTail == (COMMAND_BUFFER_LENGTH - 1) && CommandBufferHead == 0)){
     packet_buffer_clear();
@@ -238,23 +239,24 @@ void packet_buffer_clear(){
   packetBufferEnd = 0;
 }
 
-
+// FIXME? Doesn't handle tail catching head index
 void command_advance(void){
   // Advance the command buffer to the next free slot.
   CommandBufferTail++;
-  if(CommandBufferTail > COMMAND_BUFFER_LENGTH) CommandBufferTail = 0;
+  if(CommandBufferTail >= COMMAND_BUFFER_LENGTH) CommandBufferTail = 0;
   packet_buffer_clear();
 }
 
-
+// FIXME? IS THIS WRONG?
 CommandPacket* command_next(void){
   /* Return a pointer to the next command packet in the circular buffer.
   Returns NULL if there are no more commands in the buffer.
   */
+  if(CommandBufferHead == CommandBufferTail) return NULL;
   CommandPacket *result = &CommandBuffer[CommandBufferHead];
   CommandBufferHead++;
   if(CommandBufferHead > COMMAND_BUFFER_LENGTH) CommandBufferHead = 0;
-  if(CommandBufferHead == CommandBufferTail) result = NULL;
+
   return result;
 }
 
