@@ -96,16 +96,17 @@ void loop() {
   // Update all wheel motion controllers
   for(int i = 0; i < WHEEL_COUNT; i++){
     wheel[i].servo_tick(i);
-    if(wheel[i].velocity > 0.0) in_motion = true;
+    if(wheel[i].velocity > 0.0) {
+        in_motion = true;
+        printf("%u: %f;", i, wheel[i].velocity);
+    }
+    if(in_motion) printf("\n");
   }
-
-  command_buffer_print();
 
   // Command dispatcher.
   if(!in_motion) {
     //command_buffer_print();
     currentCommand = command_next();
-    printf("currentCommand: %u\n", (unsigned int)currentCommand);
 
     if(currentCommand != NULL){
 
@@ -129,6 +130,8 @@ void loop() {
         }
       command_clear(currentCommand);
     }
+  } else {
+    printf(".");
   }
 
   // 20ms / 50Hz servo frame, so wait whatever time we have left since we started this loop

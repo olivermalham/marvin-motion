@@ -122,6 +122,7 @@ int packet_parse(){
   // PRINT Command - immediate response, not queued
   failure = strncmp(packetBuffer, "PRINT", 5);
   if(!failure){
+    printf("packet_parse: STATUS\n");
     command_buffer_print();
     packet_buffer_clear();
     return PRINT;
