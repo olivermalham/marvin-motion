@@ -99,11 +99,13 @@ void loop() {
     if(wheel[i].velocity > 0.0) in_motion = true;
   }
 
+  command_buffer_print();
+
   // Command dispatcher.
   if(!in_motion) {
-    command_buffer_print();
+    //command_buffer_print();
     currentCommand = command_next();
-    //printf("currentCommand: %u\n", (unsigned int)currentCommand);
+    printf("currentCommand: %u\n", (unsigned int)currentCommand);
 
     if(currentCommand != NULL){
 

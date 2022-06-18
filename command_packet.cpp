@@ -307,7 +307,6 @@ void command_buffer_print(void){
   }
 }
 
-
 void command_clear(CommandPacket* packet){
   // Reset the command packet at the specified index
   packet->command = NO_COMMAND;
