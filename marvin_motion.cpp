@@ -108,10 +108,11 @@ void loop() {
         switch(currentCommand->command){
 
           case(MOVE):
+            printf("Packet processed %u", (unsigned int)currentCommand);
             for(int i = 0; i < WHEEL_COUNT; i++){
-//                printf("Wheel %i: D%f V%f\n", i,
-//                    currentCommand->motor[i].distance,
-//                    currentCommand->motor[i].velocity);
+                printf("Wheel %i: D%f V%f\n", i,
+                    currentCommand->motor[i].distance,
+                    currentCommand->motor[i].velocity);
                 wheel[i].move(currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
             };
             printf("Trying to move!\n");
