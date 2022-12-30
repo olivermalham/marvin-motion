@@ -25,10 +25,10 @@ unsigned long seconds = 0;
 // Array of Wheel classes
 WheelClass wheel[WHEEL_COUNT];
 
+
 // Send the current status via serial link
 void send_status(void){
   // Format: F<frame_count>;M1,T<>,D<>,V<>,P<>;
-  
   printf("F%u;  ", frame_total);
 
   for(int i = 0; i < WHEEL_COUNT; i++){
@@ -37,7 +37,6 @@ void send_status(void){
     printf("V:%f, ", wheel[i].velocity);
     printf("P:%i  |  ", wheel[i].pwm);
   }
-
   printf("\n");
 }
 
@@ -55,6 +54,7 @@ void setup() {
   printf("Marvin motion controller v0.1\n");
   printf("=============================\n\n");
   printf("Command > ");
+
   // Configure on board LED
   gpio_init(LED_PIN);
   gpio_set_dir(LED_PIN, GPIO_OUT);
@@ -150,18 +150,11 @@ int main(void){
 
   // Infinite loop
   while(true){
-    // Primary loop code, handles the servo loop.
-    // Servo frame start - milliseconds from boot
     frame_start = to_ms_since_boot(get_absolute_time());
 
-    bool in_motion = update_wheels();
-
-    // Command dispatcher.
-    if(!in_motion) execute_next_command(wheel);
-    else printf(".");
+    if(!update_wheels()) execute_next_command(wheel);
 
     per_frame();
     poll(wheel);
-    per_frame();
   }
 }

@@ -201,9 +201,11 @@ void WheelClass::update_motor(void){
 //  printf("PID: V: %f;  Va: %f; Verr: %f; A: %f, Dl: %i; D: %i; P:%i; Poff: %i; Dmax: %f\n",
 //        velocity, velocity_actual, velocity_error, A_max, int(distance_last), int(distance), pwm, PWM_offset, D_max);
 
+  // Clamp PWM
   if(pwm > 1022) pwm = PWM_max;
   if(pwm < 0) pwm = 0;
-  
+
+  // TODO: Not sure if I should be using 0 here, or PWM MAX instead - had to do that with the Python version.
   if (direction > 0){
     pwm_set_chan_level(pwm_slice, PWM_CHAN_A, pwm);
     pwm_set_chan_level(pwm_slice, PWM_CHAN_B, 0);
