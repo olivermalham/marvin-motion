@@ -134,15 +134,12 @@ void WheelClass::update_distance(float delta){
 
 int WheelClass::servo_tick(int num){
   if(distance <= distance_target) {
-//    printf("M%i - ", num+1);
-
     if(distance_target > 2*D_max) trapezoid();
     else triangle();
   } else {
     pwm = 0;
     velocity = 0;
     update_motor();
-//    printf("M%i - FINISHED!\n", num+1);
   }
   return 0;
 }

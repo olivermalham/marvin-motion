@@ -20,6 +20,7 @@ unsigned int packetBufferEnd = 0;
 unsigned int CommandBufferHead = 0;
 unsigned int CommandBufferTail = 0; // Always points to the next empty command struct
 CommandPacket CommandBuffer[COMMAND_BUFFER_LENGTH];
+CommandPacket* currentCommand = NULL;
 
 
 unsigned int packet_read(void){
@@ -249,7 +250,7 @@ void command_advance(void){
 }
 
 // FIXME? IS THIS WRONG?
-CommandPacket* command_next(void){
+CommandPacket* execute_next_command(WheelClass* wheels){
   /* Return a pointer to the next command packet in the circular buffer.
   Returns NULL if there are no more commands in the buffer.
   */
@@ -259,9 +260,25 @@ CommandPacket* command_next(void){
   CommandBufferHead++;
   if(CommandBufferHead > COMMAND_BUFFER_LENGTH) CommandBufferHead = 0;
 
-  return result;
-}
+  if(currentCommand != NULL){
+      switch(currentCommand->command){
+          case(MOVE):
+              printf("Packet processed %u\n", (unsigned int)currentCommand);
+              for(int i = 0; i < WHEEL_COUNT; i++){
+                  printf("Wheel %i: D%f V%f\n", i, currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
+                  wheels[i].move(currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
+              };
+              printf("Trying to move!\n");
+              break;
 
+          case(STOP):
+              for(int i = 0; i < WHEEL_COUNT; i++)
+                wheels[i].stop();
+              break;
+      }
+      command_clear(currentCommand);
+  }
+}
 
 void command_buffer_flush(void){
   /* Reset the packet buffer (just sets the head and tail indices to zero) */
@@ -269,23 +286,17 @@ void command_buffer_flush(void){
   CommandBufferTail = 0;
 }
 
-
 void command_buffer_print(void){
   /* Print the entire circular buffer to stdout, for debug purposes */
   unsigned int i = CommandBufferHead;
 
   if(CommandBufferHead == CommandBufferTail){
-    //printf("\nCommand Buffer Empty\n");
     return;
   }
 
   printf("\nCommand Buffer:\n");
   printf("Head: %i; Tail: %i\n", CommandBufferHead, CommandBufferTail);
   while(i <= CommandBufferTail){
-//
-//    if(!CommandBuffer[i].command) {
-//        i++; continue;
-//    }
 
     printf("\tCommand %i:\n", i);
     switch(CommandBuffer[i].command){
@@ -326,3 +337,4 @@ void command_init(void){
     command_clear(&CommandBuffer[i]);
   }
 }
+

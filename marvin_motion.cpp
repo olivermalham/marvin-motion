@@ -11,8 +11,6 @@
 // Serial comms speed
 #define SERIAL_SPEED 115200
 
-#define WHEEL_COUNT 6
-
 // Milliseconds per servo frame
 #define SERVO_FRAME 20
 
@@ -21,12 +19,11 @@ extern bool Echo;
 unsigned long milliseconds = 0;
 unsigned long frame_count = 0;
 unsigned long frame_total = 0;
+unsigned long frame_start = 0;
 unsigned long seconds = 0;
 
 // Array of Wheel classes
 WheelClass wheel[WHEEL_COUNT];
-
-CommandPacket* currentCommand = NULL;
 
 // Send the current status via serial link
 void send_status(void){
@@ -44,11 +41,13 @@ void send_status(void){
   printf("\n");
 }
 
+
 void stop_all(void){
   for(int i = 0; i < WHEEL_COUNT; i++){
 	  wheel[i].stop();
   }
 }
+
 
 void setup() {
   stdio_init_all();
@@ -84,16 +83,33 @@ void setup() {
   milliseconds = to_ms_since_boot(get_absolute_time());
 }
 
-// Primary loop code, handles the servo loop.
-void loop() {
-  
-  // Servo frame start - milliseconds from boot
-  unsigned long frame_start = to_ms_since_boot(get_absolute_time());
-  
+
+// Polling loop, runs until the end of the servo frame
+void poll(WheelClass* wheel){
+    while((to_ms_since_boot(get_absolute_time()) - frame_start) < SERVO_FRAME){
+        // Poll for encoder pulses
+        for(int i = 0; i < WHEEL_COUNT; i++){
+          wheel[i].encoder_tick();
+        }
+
+        if(packet_read()){
+          if(packet_parse() == HARDSTOP){
+            // HARDSTOP! Command queue will have already been dumped, so kill all motors
+            printf("HARDSTOP!!!\n");
+            for(int i = 0; i < WHEEL_COUNT; i++)
+              wheel[i].stop();
+          };
+          // Interactive mode, so display prompt
+          if(Echo) printf("Command > ");
+        }
+    };
+}
+
+
+// Update all wheel motion controllers
+bool update_wheels(void) {
   bool in_motion = false;
-  bool status_request = false;
-  
-  // Update all wheel motion controllers
+
   for(int i = 0; i < WHEEL_COUNT; i++){
     wheel[i].servo_tick(i);
     if(wheel[i].velocity > 0.0) {
@@ -103,70 +119,22 @@ void loop() {
     if(in_motion) printf("\n");
   }
 
-  // Command dispatcher.
-  if(!in_motion) {
-    //command_buffer_print();
-    currentCommand = command_next();
+  return in_motion;
+}
 
-    if(currentCommand != NULL){
 
-        switch(currentCommand->command){
-
-          case(MOVE):
-            printf("Packet processed %u\n", (unsigned int)currentCommand);
-            for(int i = 0; i < WHEEL_COUNT; i++){
-                printf("Wheel %i: D%f V%f\n", i,
-                    currentCommand->motor[i].distance,
-                    currentCommand->motor[i].velocity);
-                wheel[i].move(currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
-            };
-            printf("Trying to move!\n");
-            break;
-
-          case(STOP):
-            for(int i = 0; i < WHEEL_COUNT; i++)
-              wheel[i].stop();
-            break;
-        }
-      command_clear(currentCommand);
-    }
-  } else {
-    printf(".");
-  }
-
-  // 20ms / 50Hz servo frame, so wait whatever time we have left since we started this loop
-  // Use this while loop for handling everything that needs to process more quickly than the servo loop
-  while((to_ms_since_boot(get_absolute_time()) - frame_start) < SERVO_FRAME){
-
-    // Poll for encoder pulses
-    for(int i = 0; i < WHEEL_COUNT; i++){
-      wheel[i].encoder_tick();
-    }
-
-    if(packet_read()){
-      if(packet_parse() == HARDSTOP){
-        // HARDSTOP! Command queue will have already been dumped, so kill all motors
-        printf("HARDSTOP!!!\n");
-        for(int i = 0; i < WHEEL_COUNT; i++)
-          wheel[i].stop();
-      };
-      // Interactive mode, so display prompt
-      if(Echo) printf("Command > ");
-    }
-  };
-
-  // Anything that needs to runs at base 50Hz should go below here
+// Anything that needs to runs once per frame should go here
+void per_frame(void){
   if(frame_count < 50) {
     gpio_put(LED_PIN, 1);
   }
-  
+
   if(frame_count > 50) {
     gpio_put(LED_PIN, 0);
   }
 
   if(frame_count >= 100) {
     seconds++;
-//    send_status();
     frame_count = 0;
   }
 
@@ -174,24 +142,26 @@ void loop() {
   ++frame_total;
 }
 
-int main(void){
 
+int main(void){
   // Configure everything
   setup();
-
-//  wheel[0].move(15000.0, 1.0);
-//  wheel[1].move(15000.0, 1.0);
-//  wheel[2].move(7500.0, 0.5);
-//  wheel[3].move(7500.0, 0.5);
-//  wheel[4].move(15000.0, 1.0);
-//  wheel[5].move(15000.0, 1.0);
-  
   send_status();
 
   // Infinite loop
   while(true){
-    loop();
-//    send_status();
-  }
+    // Primary loop code, handles the servo loop.
+    // Servo frame start - milliseconds from boot
+    frame_start = to_ms_since_boot(get_absolute_time());
 
+    bool in_motion = update_wheels();
+
+    // Command dispatcher.
+    if(!in_motion) execute_next_command(wheel);
+    else printf(".");
+
+    per_frame();
+    poll(wheel);
+    per_frame();
+  }
 }

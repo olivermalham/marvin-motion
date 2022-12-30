@@ -2,6 +2,8 @@
 
 #define WHEEL_H
 
+#define WHEEL_COUNT 6
+
 // NOTE: All distances are in encoder counts, time is in servo ticks (normally 50Hz / 20ms per tick)
 class WheelClass {
 
