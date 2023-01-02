@@ -19,7 +19,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(marvin_motion marvin_motion.cpp command_packet.cpp wheel.cpp)
+add_executable(marvin_motion marvin_motion.cpp command_packet.cpp PID.cpp wheel.cpp)
 
 pico_set_program_name(marvin_motion "marvin_motion")
 pico_set_program_version(marvin_motion "0.1")

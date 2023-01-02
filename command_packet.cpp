@@ -17,7 +17,7 @@ unsigned int packetBufferEnd = 0;
 
 // CommandBuffer is implemented as a circular FIFO buffer
 #define COMMAND_BUFFER_LENGTH 128
-unsigned int CommandBufferHead = 0;
+unsigned int CommandBufferHead = 0; // Points to the next command to execute
 unsigned int CommandBufferTail = 0; // Always points to the next empty command struct
 CommandPacket CommandBuffer[COMMAND_BUFFER_LENGTH];
 CommandPacket* currentCommand = NULL;
@@ -72,7 +72,7 @@ unsigned int packet_read(void){
 }
 
 
-int packet_parse(){
+int packet_parse(WheelClass* wheels){
   /* Parse a string into a CommandPacket struct and add it to the command
   circular buffer.
 
@@ -116,6 +116,14 @@ int packet_parse(){
   failure = strncmp(packetBuffer, "STATUS", 6);
   if(!failure){
     printf("packet_parse: STATUS\n");
+    for(int i = 0; i < 6; i++){
+        printf("Wheel %i: D:%f V:%f Vmeasured:%f Vpid:%f PWM:%i\n", i,
+                                        wheels[i].distance,
+                                        wheels[i].velocity,
+                                        wheels[i].velocity_actual,
+                                        wheels[i].velocity + wheels[i].velocity_corrected,
+                                        wheels[i].pwm);
+    };
     packet_buffer_clear();
     return STATUS;
   }
@@ -123,7 +131,7 @@ int packet_parse(){
   // PRINT Command - immediate response, not queued
   failure = strncmp(packetBuffer, "PRINT", 5);
   if(!failure){
-    printf("packet_parse: STATUS\n");
+    printf("packet_parse: PRINT\n");
     command_buffer_print();
     packet_buffer_clear();
     return PRINT;
@@ -218,7 +226,7 @@ int packet_parse(){
       packet_buffer_clear();
       return BAD_COMMAND;
     } else {
-        printf("Packet received %u\n", (unsigned int)newPacket);
+        printf("Move data:\n");
         for(int i = 0; i < 6; i++){
             printf("Wheel %i: D%f V%f\n", i,
             newPacket->motor[i].distance,
@@ -250,29 +258,28 @@ void command_advance(void){
 }
 
 // FIXME? IS THIS WRONG?
-CommandPacket* execute_next_command(WheelClass* wheels){
+void execute_next_command(WheelClass* wheels){
   /* Return a pointer to the next command packet in the circular buffer.
   Returns NULL if there are no more commands in the buffer.
   */
-  if(CommandBufferHead == CommandBufferTail) return NULL;
-  CommandPacket *result = &CommandBuffer[CommandBufferHead];
+  if(CommandBufferHead == CommandBufferTail) return;
+  currentCommand = &CommandBuffer[CommandBufferHead];
 
   CommandBufferHead++;
-  if(CommandBufferHead > COMMAND_BUFFER_LENGTH) CommandBufferHead = 0;
+  if(CommandBufferHead >= COMMAND_BUFFER_LENGTH) CommandBufferHead = 0;
 
   if(currentCommand != NULL){
       switch(currentCommand->command){
           case(MOVE):
-              printf("Packet processed %u\n", (unsigned int)currentCommand);
-              for(int i = 0; i < WHEEL_COUNT; i++){
-                  printf("Wheel %i: D%f V%f\n", i, currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
+              for(int i = 0; i < 6; i++){
+                  printf("execute_next_command - Wheel %i: D%f V%f\n", i, currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
                   wheels[i].move(currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
               };
-              printf("Trying to move!\n");
+              printf("execute_next_command - Trying to move!\n");
               break;
 
           case(STOP):
-              for(int i = 0; i < WHEEL_COUNT; i++)
+              for(int i = 0; i < 6; i++)
                 wheels[i].stop();
               break;
       }

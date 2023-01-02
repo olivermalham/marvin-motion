@@ -12,8 +12,8 @@ Question: how can I implement this in a way that keeps the code well-structured?
 
 
 
-MOVE:M1,D1234.5,V128,M2,D1234.5,V128,M3,D1234.5,V128,M4,D1234.5,V128,M5,D1234.5,V128,M6,D1234.5,V128;
-
+MOVE:D10000.0,V400.0,D10000.0,V400.0,D10000.0,V400.0,D10000.0,V400.0,D10000.0,V400.0,D10000.0,V400.0
+MOVE:D10000.0,V130.0,D10000.0,V130.0,D10000.0,V130.0,D10000.0,V130.0,D10000.0,V130.0,D10000.0,V130.0
 
 ===================================
 Work Diary
@@ -21,10 +21,15 @@ Work Diary
 
 30/12/2022
 Refactored code, cleaned it up quite a bit.
+
+3/1/2023
+Got the code working with the motion control stuff disabled, so no smooth acceleration or deceleration. Made various
+improvements, now got to the point where I'm happy to work on the PID integration.
+Added PID to the wheel class, and updating it every servo tick (so every 50ms atm).
+Got it generating a value from the requested velocity and a fake measured velocity.
+
 TODO:
-Forget motion control right now, focus on getting all the wheels to move at the same speed
-    - Calculate velocity in encoder ticks per second
-    - Review the PID code that I found, make sure I understand it
-    - Use the PID code to manage PWM
+    - Tune the PID parameters!
+    - Need to average the velocity values (surprise!)
     
 

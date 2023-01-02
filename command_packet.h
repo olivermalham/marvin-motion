@@ -24,11 +24,11 @@ struct CommandPacket {
 };
 
 unsigned int packet_read(void);
-int packet_parse();
+int packet_parse(WheelClass* wheels);
 void packet_buffer_clear();
 
 void command_advance(void);
-CommandPacket* execute_next_command(WheelClass* wheels);
+void execute_next_command(WheelClass* wheels);
 void command_buffer_flush(void);
 void command_buffer_print(void);
 void command_clear(CommandPacket* packet);

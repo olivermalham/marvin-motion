@@ -23,7 +23,7 @@ unsigned long frame_start = 0;
 unsigned long seconds = 0;
 
 // Array of Wheel classes
-WheelClass wheel[WHEEL_COUNT];
+WheelClass wheels[6];
 
 
 // Send the current status via serial link
@@ -31,19 +31,19 @@ void send_status(void){
   // Format: F<frame_count>;M1,T<>,D<>,V<>,P<>;
   printf("F%u;  ", frame_total);
 
-  for(int i = 0; i < WHEEL_COUNT; i++){
+  for(int i = 0; i < 6; i++){
     printf("M%i, ", i+1); 
-    printf("D:%f, ", wheel[i].distance);
-    printf("V:%f, ", wheel[i].velocity);
-    printf("P:%i  |  ", wheel[i].pwm);
+    printf("D:%f, ", wheels[i].distance);
+    printf("V:%f, ", wheels[i].velocity);
+    printf("P:%i  |  ", wheels[i].pwm);
   }
   printf("\n");
 }
 
 
 void stop_all(void){
-  for(int i = 0; i < WHEEL_COUNT; i++){
-	  wheel[i].stop();
+  for(int i = 0; i < 6; i++){
+	  wheels[i].stop();
   }
 }
 
@@ -62,42 +62,42 @@ void setup() {
   command_init();
 
   // Initialise all the motor classes
-  wheel[0].set_pins(M1A, M1B, E1A, E1B);
-  wheel[0].reset();
+  wheels[0].set_pins(M1A, M1B, E1A, E1B);
+  wheels[0].reset();
   
-  wheel[1].set_pins(M2A, M2B, E2A, E2B);
-  wheel[1].reset();
+  wheels[1].set_pins(M2A, M2B, E2A, E2B);
+  wheels[1].reset();
   
-  wheel[2].set_pins(M3A, M3B, E3A, E3B);
-  wheel[2].reset();
+  wheels[2].set_pins(M3A, M3B, E3A, E3B);
+  wheels[2].reset();
 
-  wheel[3].set_pins(M4A, M4B, E4A, E4B);
-  wheel[3].reset();
+  wheels[3].set_pins(M4A, M4B, E4A, E4B);
+  wheels[3].reset();
   
-  wheel[4].set_pins(M5A, M5B, E5A, E5B);
-  wheel[4].reset();
+  wheels[4].set_pins(M5A, M5B, E5A, E5B);
+  wheels[4].reset();
   
-  wheel[5].set_pins(M6A, M6B, E6A, E6B);
-  wheel[5].reset();
+  wheels[5].set_pins(M6A, M6B, E6A, E6B);
+  wheels[5].reset();
 
   milliseconds = to_ms_since_boot(get_absolute_time());
 }
 
 
 // Polling loop, runs until the end of the servo frame
-void poll(WheelClass* wheel){
+void poll(WheelClass* wheels){
     while((to_ms_since_boot(get_absolute_time()) - frame_start) < SERVO_FRAME){
         // Poll for encoder pulses
-        for(int i = 0; i < WHEEL_COUNT; i++){
-          wheel[i].encoder_tick();
+        for(int i = 0; i < 6; i++){
+          wheels[i].encoder_tick();
         }
 
         if(packet_read()){
-          if(packet_parse() == HARDSTOP){
+          if(packet_parse(wheels) == HARDSTOP){
             // HARDSTOP! Command queue will have already been dumped, so kill all motors
             printf("HARDSTOP!!!\n");
-            for(int i = 0; i < WHEEL_COUNT; i++)
-              wheel[i].stop();
+            for(int i = 0; i < 6; i++)
+              wheels[i].stop();
           };
           // Interactive mode, so display prompt
           if(Echo) printf("Command > ");
@@ -106,17 +106,17 @@ void poll(WheelClass* wheel){
 }
 
 
-// Update all wheel motion controllers
-bool update_wheels(void) {
+// Update all wheels motion controllers
+bool update_wheels(unsigned long frame_time) {
   bool in_motion = false;
 
-  for(int i = 0; i < WHEEL_COUNT; i++){
-    wheel[i].servo_tick(i);
-    if(wheel[i].velocity > 0.0) {
+  for(int i = 0; i < 6; i++){
+    wheels[i].servo_tick(frame_time);
+    if(wheels[i].velocity > 0.0) {
         in_motion = true;
-        printf("%u: %f;", i, wheel[i].velocity);
+//        printf("update_wheels - %u: %f;", i, wheels[i].velocity);
     }
-    if(in_motion) printf("\n");
+//    if(in_motion) printf("\n");
   }
 
   return in_motion;
@@ -136,6 +136,16 @@ void per_frame(void){
   if(frame_count >= 100) {
     seconds++;
     frame_count = 0;
+
+    for(int i = 0; i < 6; i++){
+        printf("Wheel %i: D:%f V:%f Vmeasured:%f Vpid:%f PWM:%i\n", i,
+                                wheels[i].distance,
+                                wheels[i].velocity,
+                                wheels[i].velocity_actual,
+                                wheels[i].velocity + wheels[i].velocity_corrected,
+                                wheels[i].pwm);
+    };
+    printf("\n");
   }
 
   ++frame_count;
@@ -152,9 +162,9 @@ int main(void){
   while(true){
     frame_start = to_ms_since_boot(get_absolute_time());
 
-    if(!update_wheels()) execute_next_command(wheel);
+    if(!update_wheels(frame_start)) execute_next_command(wheels);
 
     per_frame();
-    poll(wheel);
+    poll(wheels);
   }
 }

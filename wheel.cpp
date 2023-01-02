@@ -3,7 +3,7 @@
 #include "hardware/pwm.h"
 #include "hardware/gpio.h"
 #include "wheel.h"
-
+#include "PID.h"
 
 WheelClass::WheelClass(void){
   distance = 0.0;
@@ -24,11 +24,15 @@ WheelClass::WheelClass(void){
   PWM_max = 1000; //1022;
   PWM_offset = 400;
 
-  V_max = 13.0; //250.0 / 50; // 34
-  A_max = V_max / 150.0; // 11.333
-  D_max = V_max * 150 * 0.5; // (A_max = 150)
+  V_max = 1300.0; // Maximum encoder ticks per second
+  A_max = V_max / 150.0; // FIXME!
+  D_max = V_max * 150 * 0.5; // FIXME!
 
   PWM_convert = float(PWM_max - PWM_offset) / V_max;
+
+  pid = new PID(&velocity_actual, &velocity_corrected, &velocity, 1, 0, 0, DIRECT);
+  pid->SetOutputLimits(-1.0*V_max, V_max);
+  pid->SetMode(AUTOMATIC);
 }
 
 void WheelClass::reset(void){
@@ -53,6 +57,8 @@ void WheelClass::reset(void){
   encoderA_last = gpio_get(encoderA_pin);
 }
 
+// TODO: Clean this up! "Scale" should be a velocity in ticks / second
+// TODO: Worry about the trapezoid motion control later!
 void WheelClass::move(float distance, float scale){
   distance_target = distance;
   D_max = D_max * scale;
@@ -66,14 +72,14 @@ void WheelClass::move(float distance, float scale){
   // we have a triangular motion profile. Recalculate accordingly.
   if(D_max > distance / 2){ /* TODO! */};
 
-  velocity = V_max;
+  velocity = scale;
   
 }
 
 // Perform an immediate stop of the motor
 void WheelClass::stop(void){
   velocity = 0.0;
-  //update_motor(0.0);
+  update_motor();
 }
 
 void WheelClass::set_pins(int outA, int outB, int encoderA, int encoderB){
@@ -132,34 +138,43 @@ void WheelClass::update_distance(float delta){
   distance += delta;
 }
 
-int WheelClass::servo_tick(int num){
+int WheelClass::servo_tick(unsigned long frame_time){
+
+  velocity_actual = (distance - distance_last)/(frame_time - last_frame) * 1000.0; // Time is in milliseconds
+  distance_last = distance;
+  last_frame = frame_time;
+
   if(distance <= distance_target) {
-    if(distance_target > 2*D_max) trapezoid();
-    else triangle();
+//    if(distance_target > 2*D_max) trapezoid();
+//    else triangle();
+      trapezoid();
   } else {
     pwm = 0;
     velocity = 0;
-    update_motor();
+    pwm_set_chan_level(pwm_slice, PWM_CHAN_A, 0);
+    pwm_set_chan_level(pwm_slice, PWM_CHAN_B, 0);
   }
   return 0;
 }
 
 void WheelClass::trapezoid(void){
     // Calculate the target velocity
-    if(distance < D_max){
-        // Ramp up speed to maximum
-        velocity += A_max;
-        if(velocity > V_max) velocity = V_max;
-    } else if(distance >= D_max && distance < distance_target - D_max) {
-        // Constant speed
-    } else {
-        // Ramp down
-        velocity -= A_max;
-        if(velocity <= 0.0) velocity = 0.0;
-    }
+//    if(distance < D_max){
+//        // Ramp up speed to maximum
+//        velocity += A_max;
+//        if(velocity > V_max) velocity = V_max;
+//    } else if(distance >= D_max && distance < distance_target - D_max) {
+//        // Constant speed
+//    } else {
+//        // Ramp down
+//        velocity -= A_max;
+//        if(velocity <= 0.0) velocity = 0.0;
+//        velocity = 0.0;
+//    }
 
+//    velocity_actual = velocity + 1.0;
+    pid->Compute();
     update_motor();
-    distance_last = distance;
 }
 
 // Cumulative moving average of velocity
@@ -189,17 +204,7 @@ void WheelClass::triangle(void){
 // Update motor contains proportional control code
 void WheelClass::update_motor(void){
 
-  // Calculate velocity error
-  float velocity_actual = distance - distance_last;
-  float velocity_error = velocity - velocity_actual;
-
-  // TODO: This will oscillate around the set point!
-  if(velocity_error > 0) pwm += 10;
-  else if(velocity_error < 0) pwm -= 10;
-  else pwm = 0;
-
-//  printf("PID: V: %f;  Va: %f; Verr: %f; A: %f, Dl: %i; D: %i; P:%i; Poff: %i; Dmax: %f\n",
-//        velocity, velocity_actual, velocity_error, A_max, int(distance_last), int(distance), pwm, PWM_offset, D_max);
+  pwm = int(PWM_convert * (velocity + velocity_corrected)) + PWM_offset;
 
   // Clamp PWM
   if(pwm > 1022) pwm = PWM_max;
