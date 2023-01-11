@@ -29,6 +29,7 @@ Added PID to the wheel class, and updating it every servo tick (so every 50ms at
 Got it generating a value from the requested velocity and a fake measured velocity.
 
 TODO:
+    - Need to calibrate each of the wheels
     - Tune the PID parameters!
     - Need to average the velocity values (surprise!)
     

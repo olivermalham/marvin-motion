@@ -174,7 +174,8 @@ int packet_parse(WheelClass* wheels){
   if(!failure){
     int motor_no = 0;
     int args = sscanf(packetBuffer, "CALIB:%i", motor_no);
-    
+
+    // newPacket->command = CALIB;
     // newPacket->motor[motor_no].distance = 10000;
     // newPacket->motor[motor_no].velocity = 1.0;
 
@@ -187,7 +188,6 @@ int packet_parse(WheelClass* wheels){
       return CALIB;
     }
   }
-
 
   // STOP Command
   failure = strncmp(packetBuffer, "STOP", 4);
@@ -243,52 +243,69 @@ int packet_parse(WheelClass* wheels){
   return BAD_COMMAND;
 }
 
-
 void packet_buffer_clear(){
-  // Just reset the buffer index to zero
-  packetBufferEnd = 0;
+    // Just reset the buffer index to zero
+    packetBufferEnd = 0;
 }
 
 // FIXME? Doesn't handle tail catching head index
 void command_advance(void){
-  // Advance the command buffer to the next free slot.
-  CommandBufferTail++;
-  if(CommandBufferTail >= COMMAND_BUFFER_LENGTH) CommandBufferTail = 0;
-  packet_buffer_clear();
+    // Advance the command buffer to the next free slot.
+    CommandBufferTail++;
+    if(CommandBufferTail >= COMMAND_BUFFER_LENGTH) CommandBufferTail = 0;
+    packet_buffer_clear();
 }
 
-// FIXME? IS THIS WRONG?
 void execute_next_command(WheelClass* wheels){
-  /* Return a pointer to the next command packet in the circular buffer.
-  Returns NULL if there are no more commands in the buffer.
-  */
-  if(CommandBufferHead == CommandBufferTail) return;
-  currentCommand = &CommandBuffer[CommandBufferHead];
+    /* Return a pointer to the next command packet in the circular buffer.
+    Returns NULL if there are no more commands in the buffer.
+    */
+    if(CommandBufferHead == CommandBufferTail) return;
+    currentCommand = &CommandBuffer[CommandBufferHead];
 
-  CommandBufferHead++;
-  if(CommandBufferHead >= COMMAND_BUFFER_LENGTH) CommandBufferHead = 0;
+    CommandBufferHead++;
+    if(CommandBufferHead >= COMMAND_BUFFER_LENGTH) CommandBufferHead = 0;
 
-  if(currentCommand != NULL){
-      switch(currentCommand->command){
-          case(MOVE):
-              for(int i = 0; i < 6; i++){
-                  printf("execute_next_command - Wheel %i: D%f V%f\n", i, currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
-                  wheels[i].move(currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
-              };
-              printf("execute_next_command - Trying to move!\n");
-              break;
+    if(currentCommand != NULL){
+        switch(currentCommand->command){
+            case(MOVE):
+                for(int i = 0; i < 6; i++){
+                    printf("execute_next_command - Wheel %i: D%f V%f\n", i, currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
+                    wheels[i].move(currentCommand->motor[i].distance, currentCommand->motor[i].velocity);
+                };
+                printf("execute_next_command - Trying to move!\n");
+                break;
 
-          case(STOP):
-              for(int i = 0; i < 6; i++)
-                wheels[i].stop();
-              break;
-      }
-      command_clear(currentCommand);
-  }
+            case(STOP):
+                for(int i = 0; i < 6; i++)
+                    wheels[i].stop();
+                break;
+
+            case(CALIB):
+                // TODO - Need to finish this. How to start the calibration wheel moving in the first place?
+                // TODO - Need to figure out how to print the calibration results
+                for(int i = 0; i < 6; i++){
+                    // Only try to calibrate the wheel that already has some power supplied
+                    if(wheels[i].pwm != 0){
+                        if(wheels[i].velocity < 5){
+                            // Increase PWM until average velocity gets over basic threshold
+                            wheels[i].pwm++;
+                        } else {
+                            // Crank power up to full, see what velocity we get out
+                            wheels[i].pwm = wheels[i].PMW_max;
+                        }
+                        // Don't clear the current command, should keep running calibration.
+                        return;
+                    }
+                }
+                break;
+        }
+        command_clear(currentCommand);
+    }
 }
 
 void command_buffer_flush(void){
-  /* Reset the packet buffer (just sets the head and tail indices to zero) */
+  // Reset the packet buffer (just sets the head and tail indices to zero)
   CommandBufferHead = 0;
   CommandBufferTail = 0;
 }

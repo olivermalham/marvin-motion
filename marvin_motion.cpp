@@ -48,6 +48,16 @@ void stop_all(void){
 }
 
 
+// Gradually ramp up the PWM on the specified motor until the wheel velocity is none-zero, print out the
+// PWM value to get the offset. Once offset is found, jump up to full power and print out the velocity value.
+// Purpose is to find the parameters required to map velocity to PWM. Values will be hardcoded once found.
+void calibrate(unsigned int motor){
+  unsigned int offset = 0;
+  float max_V = 0.0;
+
+}
+
+
 void setup() {
   stdio_init_all();
   printf("=============================\n");
@@ -114,11 +124,8 @@ bool update_wheels(unsigned long frame_time) {
     wheels[i].servo_tick(frame_time);
     if(wheels[i].velocity > 0.0) {
         in_motion = true;
-//        printf("update_wheels - %u: %f;", i, wheels[i].velocity);
     }
-//    if(in_motion) printf("\n");
   }
-
   return in_motion;
 }
 
